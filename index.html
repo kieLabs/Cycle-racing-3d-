@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Extreme Cycle Rush 3D — Live Downhill Racing</title>
+<style>
+  :root {
+    --primary: #00f2fe;
+    --accent: #ff0844;
+    --gold: #ffd700;
+    --dark: rgba(10, 15, 28, 0.85);
+    --glass: rgba(255, 255, 255, 0.12);
+  }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #060913;
+    color: #fff;
+  }
+  #game-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 1;
+  }
+  
+  /* HUD OVERLAY */
+  #hud {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+    display: none;
+  }
+  .hud-btn {
+    pointer-events: auto;
+    background: rgba(255, 255, 255, 0.9);
+    color: #103050;
+    border: 2px solid #206090;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-weight: 900;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+    transition: transform 0.12s ease;
+  }
+  .hud-btn:active {
+    transform: scale(0.9);
+  }
+
+  /* Top Left Buttons */
+  .top-left {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    display: flex;
+    gap: 10px;
+  }
+
+  /* Top Center Progress Bar (Exact match to reference screenshots) */
+  .top-center {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(420px, 52vw);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .progress-track {
+    position: relative;
+    width: 100%;
+    height: 10px;
+    background: linear-gradient(90deg, #f7d94c 0%, #f1b814 100%);
+    border: 2px solid #1b263b;
+    border-radius: 8px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.45);
+  }
+  .checkpoint-tick {
+    position: absolute;
+    top: -5px;
+    width: 3px;
+    height: 16px;
+    background: #2b2b2b;
+  }
+  .finish-flag-icon {
+    position: absolute;
+    right: -12px;
+    top: -10px;
+    font-size: 18px;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6));
+  }
+  .progress-dot {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 2px solid #000;
+    transition: left 0.08s linear;
+  }
+  .progress-dot.player {
+    width: 15px;
+    height: 15px;
+    background: #00f2fe;
+    border: 2.5px solid #fff;
+    z-index: 3;
+    box-shadow: 0 0 8px #00f2fe;
+  }
+
+  /* Top Right Position & Speed Badge */
+  .top-right {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  .rank-pill {
+    background: rgba(255, 255, 255, 0.92);
+    color: #0e4a7b;
+    padding: 5px 12px;
+    border-radius: 10px;
+    border: 2px solid #1c6ea4;
+    font-weight: 800;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .bars-icon {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 14px;
+  }
+  .bars-icon span {
+    width: 3px;
+    background: #1c6ea4;
+    border-radius: 1px;
+  }
+  .speed-pill {
+    background: rgba(10, 18, 32, 0.82);
+    border: 1px solid rgba(0, 242, 254, 0.5);
+    color: #00f2fe;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+
+  /* Center Banner for Countdown & Stunts */
+  #center-banner {
+    position: absolute;
+    top: 32%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(34px, 7vw, 68px);
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    text-shadow: 0 4px 0 #000, 0 0 24px rgba(255, 180, 0, 0.9);
+    pointer-events: none;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  #event-toast {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    font-weight: 800;
+    color: #ffd700;
+    background: rgba(0,0,0,0.65);
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,215,0,0.5);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  /* Mobile Touch Controls */
+  .touch-controls {
+    position: absolute;
+    bottom: 18px;
+    left: 16px;
+    right: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    pointer-events: none;
+  }
+  .steer-group, .action-group {
+    display: flex;
+    gap: 12px;
+    pointer-events: auto;
+  }
+  .ctrl-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    background: rgba(15, 23, 42, 0.72);
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    color: #fff;
+    font-size: 24px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .ctrl-btn:active, .ctrl-btn.active {
+    background: rgba(0, 242, 254, 0.35);
+    border-color: #00f2fe;
+    transform: scale(0.93);
+  }
+  .ctrl-btn.boost-btn {
+    background: linear-gradient(135deg, rgba(255,8,68,0.8), rgba(255,177,153,0.8));
+    border-color: #ffd700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+  .ctrl-btn.brake-btn {
+    width: 54px;
+    height: 54px;
+    font-size: 13px;
+    background: rgba(220, 38, 38, 0.65);
+  }
+
+  /* OVERLAY SCREENS (MAIN MENU, LOBBY, PODIUM) */
+  .screen-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 25;
+    background: radial-gradient(circle at center, rgba(14, 26, 48, 0.78) 0%, rgba(5, 9, 18, 0.94) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    backdrop-filter: blur(8px);
+  }
+  .card-panel {
+    width: min(540px, 95vw);
+    max-height: 92vh;
+    overflow-y: auto;
+    background: rgba(16, 24, 44, 0.92);
+    border: 1px solid rgba(0, 242, 254, 0.35);
+    border-radius: 22px;
+    padding: 22px 24px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(0, 242, 254, 0.15);
+    text-align: center;
+  }
+  .game-title {
+    font-size: clamp(24px, 5vw, 34px);
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, #00f2fe, #4facfe, #ffd700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 4px;
+  }
+  .game-sub {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+    text-align: left;
+  }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #38bdf8;
+    margin-bottom: 5px;
+    font-weight: 700;
+  }
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(8, 13, 26, 0.9);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    outline: none;
+  }
+  .biome-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 12px 0 16px;
+  }
+  .biome-card {
+    background: rgba(255,255,255,0.06);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 10px 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .biome-card.active {
+    border-color: #00f2fe;
+    background: rgba(0, 242, 254, 0.15);
+    box-shadow: 0 0 14px rgba(0, 242, 254, 0.3);
+  }
+  .biome-card .emoji {
+    font-size: 24px;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .biome-card .b-name {
+    font-size: 12px;
+    font-weight: 800;
+  }
+  .primary-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(90deg, #00f2fe 0%, #0072ff 100%);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(0, 114, 255, 0.45);
+    transition: transform 0.12s ease;
+  }
+  .primary-btn:hover {
+    transform: translateY(-2px);
+  }
+  .controls-hint {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #cbd5e1;
+    background: rgba(255,255,255,0.05);
+    padding: 8px 12px;
+    border-radius: 10px;
+  }
+
+  /* Matchmaking Lobby Box */
+  .lobby-list {
+    margin: 14px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    text-align: left;
+  }
+  .lobby-slot {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 7px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .lobby-slot.ready {
+    border-color: rgba(34, 197, 94, 0.6);
+    background: rgba(34, 197, 94, 0.12);
+  }
+  .ping-tag {
+    font-size: 11px;
+    color: #4ade80;
+    font-weight: 600;
+  }
+
+  /* Leaderboard Table */
+  .leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 16px;
+    font-size: 13px;
+  }
+  .leaderboard-table th {
+    text-align: left;
+    padding: 7px 8px;
+    color: #38bdf8;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+  }
+  .leaderboard-table td {
+    padding: 7px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    text-align: left;
+    font-weight: 600;
+  }
+  .leaderboard-table tr.me-row {
+    background: rgba(0, 242, 254, 0.2);
+    color: #ffd700;
+    font-weight: 800;
+  }
+
+  @media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; gap: 8px; }
+    .lobby-list { grid-template-columns: 1fr; }
+    .ctrl-btn { width: 58px; height: 58px; }
+  }
+</style>
+<!-- Three.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+<canvas id="game-canvas"></canvas>
+
+<!-- IN-GAME HUD -->
+<div id="hud">
+  <div class="top-left">
+    <button class="hud-btn" id="btn-camera" title="Switch Camera (C)">C</button>
+    <button class="hud-btn" id="btn-audio" title="Mute / Unmute">🔊</button>
+    <button class="hud-btn" id="btn-fullscreen" title="Fullscreen">⛶</button>
+  </div>
+
+  <div class="top-center">
+    <div class="progress-track" id="progress-track">
+      <div class="checkpoint-tick" style="left: 25%;"></div>
+      <div class="checkpoint-tick" style="left: 50%;"></div>
+      <div class="checkpoint-tick" style="left: 75%;"></div>
+      <span class="finish-flag-icon">🚩</span>
+    </div>
+  </div>
+
+  <div class="top-right">
+    <div class="rank-pill">
+      <span class="bars-icon">
+        <span style="height:6px"></span>
+        <span style="height:10px"></span>
+        <span style="height:14px"></span>
+      </span>
+      <span id="hud-rank">1st</span>
+    </div>
+    <div class="speed-pill"><span id="hud-speed">0</span> KM/H</div>
+  </div>
+
+  <div id="center-banner">GO!</div>
+  <div id="event-toast">SLIPSTREAM BOOST!</div>
+
+  <div class="touch-controls">
+    <div class="steer-group">
+      <button class="ctrl-btn" id="btn-left">◀</button>
+      <button class="ctrl-btn" id="btn-right">▶</button>
+    </div>
+    <div class="action-group">
+      <button class="ctrl-btn brake-btn" id="btn-brake">BRAKE</button>
+      <button class="ctrl-btn boost-btn" id="btn-boost">SPRINT<br>⚡</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN MENU & GARAGE OVERLAY -->
+<div class="screen-overlay" id="menu-screen">
+  <div class="card-panel">
+    <div class="game-title">EXTREME CYCLE RUSH 3D</div>
+    <div class="game-sub">10-Rider Downhill World Tour • First-Person Handlebar & Chase View</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Rider Tag</label>
+        <input type="text" id="input-name" value="Racer_Pro" maxlength="14" />
+      </div>
+      <div class="form-group">
+        <label>Country Flag</label>
+        <select id="input-flag">
+          <option value="🇮🇳">🇮🇳 India</option>
+          <option value="🇺🇸">🇺🇸 USA</option>
+          <option value="🇬🇧">🇬🇧 UK</option>
+          <option value="🇧🇷">🇧🇷 Brazil</option>
+          <option value="🇯🇵">🇯🇵 Japan</option>
+          <option value="🇩🇪">🇩🇪 Germany</option>
+          <option value="🇫🇷">🇫🇷 France</option>
+          <option value="🇦🇺">🇦🇺 Australia</option>
+          <option value="🇨🇦">🇨🇦 Canada</option>
+          <option value="🇦🇪">🇦🇪 UAE</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Bike Frame Color</label>
+        <select id="input-bike-color">
+          <option value="#00a8ff">Electric Blue</option>
+          <option value="#ff2e63">Crimson Red</option>
+          <option value="#f9d423">Neon Yellow</option>
+          <option value="#2ecc71">Emerald Green</option>
+          <option value="#9b59b6">Cyber Purple</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Starting Camera</label>
+        <select id="input-cam-mode">
+          <option value="pov">Handlebar POV (1st Person)</option>
+          <option value="chase">Chase Camera (3rd Person)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group" style="text-align:left;">
+      <label>Select Mountain Trail</label>
+    </div>
+    <div class="biome-cards" id="biome-selector">
+      <div class="biome-card active" data-biome="forest">
+        <span class="emoji">🌲</span>
+        <span class="b-name">Alpine Forest</span>
+      </div>
+      <div class="biome-card" data-biome="snow">
+        <span class="emoji">🏔️</span>
+        <span class="b-name">Snowy Peak</span>
+      </div>
+      <div class="biome-card" data-biome="desert">
+        <span class="emoji">🏜️</span>
+        <span class="b-name">Canyon Dunes</span>
+      </div>
+    </div>
+
+    <button class="primary-btn" id="btn-find-match">JOIN LIVE RACE (10 RIDERS)</button>
+
+    <div class="controls-hint">
+      <b>Desktop:</b> A/D or Left/Right Arrows to Steer • W/Up to Pedal • Space for Sprint Boost • <b>C</b> to Switch Camera<br>
+      <b>Mobile:</b> Auto-Pedal Active • Touch ◀ ▶ to Steer • Tap SPRINT for Aero Boost
+    </div>
+  </div>
+</div>
+
+<!-- LIVE LOBBY MATCHMAKING OVERLAY -->
+<div class="screen-overlay" id="lobby-screen" style="display:none;">
+  <div class="card-panel">
+    <div class="game-title" style="font-size:24px;">CONNECTING TO TRAIL LOBBY</div>
+    <div class="game-sub" id="lobby-status-text">Matching with riders worldwide (1/10)...</div>
+    <div class="lobby-list" id="lobby-slots"></div>
+  </div>
+</div>
+
+<!-- FINISH PODIUM & LEADERBOARD OVERLAY -->
+<div class="screen-overlay" id="finish-screen" style="display:none;">
+  <div class="card-panel">
+    <div class="game-title" id="finish-headline">RACE FINISHED!</div>
+    <div class="game-sub" id="finish-subline">Official Downhill Trail Standings</div>
+    <table class="leaderboard-table">
+      <thead>
+        <tr>
+          <th>Pos</th>
+          <th>Rider</th>
+          <th>Time</th>
+          <th>Top Speed</th>
+          <th>Reward</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-body"></tbody>
+    </table>
+    <button class="primary-btn" id="btn-next-race">NEXT TRAIL RACE</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ==========================================
+  // 1. GLOBAL RIDER POOL (Realistic Online Tags - ZERO AI/Bot Mentions)
+  // ==========================================
+  const GLOBAL_RIDER_POOL = [
+    { name: "John_Pro", flag: "🇬🇧", jersey: "#ff2e63", bike: "#f9d423", rim: "#ffffff" },
+    { name: "Aarav_X", flag: "🇮🇳", jersey: "#f9d423", bike: "#111111", rim: "#f9d423" },
+    { name: "Lucas99", flag: "🇧🇷", jersey: "#2ecc71", bike: "#ffffff", rim: "#2ecc71" },
+    { name: "SpeedDemon", flag: "🇺🇸", jersey: "#9b59b6", bike: "#00f2fe", rim: "#ffffff" },
+    { name: "Kenji_MTB", flag: "🇯🇵", jersey: "#ff6b35", bike: "#222222", rim: "#ff6b35" },
+    { name: "Max_Downhill", flag: "🇩🇪", jersey: "#00d2d3", bike: "#e84118", rim: "#ffffff" },
+    { name: "Leo_Velo", flag: "🇫🇷", jersey: "#54a0ff", bike: "#feca57", rim: "#54a0ff" },
+    { name: "Zack_Trail", flag: "🇦🇺", jersey: "#1dd1a1", bike: "#222f3e", rim: "#1dd1a1" },
+    { name: "Tariq_77", flag: "🇦🇪", jersey: "#ff9f43", bike: "#ee5253", rim: "#ffffff" },
+    { name: "Noah_XC", flag: "🇨🇦", jersey: "#ff4757", bike: "#dfe4ea", rim: "#ff4757" },
+    { name: "Carlos_DH", flag: "🇪🇸", jersey: "#ffa502", bike: "#2f3542", rim: "#ffa502" },
+    { name: "Vikram_GT", flag: "🇮🇳", jersey: "#3742fa", bike: "#7bed9f", rim: "#ffffff" }
+  ];
+
+  const BIOMES = {
+    forest: {
+      name: "Alpine Forest",
+      skyTop: "#2980b9",
+      skyBottom: "#a8e6cf",
+      fogColor: 0x8ecae6,
+      groundColor: 0x3b7a28,
+      roadColor: 0x8b5a2b,
+      roadEdge: 0x6e4720,
+      treeType: "pine",
+      weather: "none"
+    },
+    snow: {
+      name: "Snowy Peak",
+      skyTop: "#1e3c72",
+      skyBottom: "#d9e4f5",
+      fogColor: 0xcfe2f3,
+      groundColor: 0xf0f6fc,
+      roadColor: 0xdbe9f4,
+      roadEdge: 0xd97706,
+      treeType: "snowpine",
+      weather: "snow"
+    },
+    desert: {
+      name: "Canyon Dunes",
+      skyTop: "#2c3e50",
+      skyBottom: "#fd746c",
+      fogColor: 0xe6a176,
+      groundColor: 0xd48b45,
+      roadColor: 0xb56527,
+      roadEdge: 0x8a4215,
+      treeType: "cactus",
+      weather: "dust"
+    }
+  };
+
+  // ==========================================
+  // 2. PROCEDURAL WEB AUDIO ENGINE
+  // ==========================================
+  class SoundEngine {
+    constructor() {
+      this.ctx = null;
+      this.muted = false;
+      this.lastClickTime = 0;
+    }
+    init() {
+      if (!this.ctx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) this.ctx = new AudioCtx();
+      }
+      if (this.ctx && this.ctx.state === "suspended") {
+        this.ctx.resume();
+      }
+    }
+    beep(freq = 520, duration = 0.15, type = "triangle") {
+      if (this.muted || !this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+      gain.gain.setValueAtTime(0.16, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + duration);
+    }
+    chainTick(speedRatio) {
+      if (this.muted || !this.ctx || speedRatio < 0.08) return;
+      const now = performance.now();
+      const interval = Math.max(48, 190 - speedRatio * 140);
+      if (now - this.lastClickTime < interval) return;
+      this.lastClickTime = now;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(900 + speedRatio * 500, this.ctx.currentTime);
+      gain.gain.setValueAtTime(0.028, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.025);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.026);
+    }
+    boostWhoosh() {
+      if (this.muted || !this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(680, this.ctx.currentTime + 0.35);
+      gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.36);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.36);
+    }
+    bumpSound() {
+      if (this.muted || !this.ctx) return;
+      this.beep(110, 0.14, "square");
+    }
+  }
+  const sfx = new SoundEngine();
+
+  // ==========================================
+  // 3. THREE.JS SCENE & TRACK SETUP
+  // ==========================================
+  const canvas = document.getElementById("game-canvas");
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x8ecae6, 0.0038);
+
+  const camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.15, 420);
+
+  const hemiLight = new THREE.HemisphereLight(0xffffff, 0x446633, 0.85);
+  scene.add(hemiLight);
+
+  const dirLight = new THREE.DirectionalLight(0xfff6e5, 0.95);
+  dirLight.position.set(60, 120, 80);
+  dirLight.castShadow = true;
+  scene.add(dirLight);
+
+  // Track Parameters
+  const TRACK_LENGTH = 1750;
+  const TRACK_WIDTH = 13.5;
+  let currentBiomeKey = "forest";
+  let cameraMode = "pov"; // 'pov' (First-Person Handlebar) or 'chase' (Third-Person)
+  let gameState = "menu"; // 'menu' | 'countdown' | 'racing' | 'finished'
+
+  let worldGroup = new THREE.Group();
+  scene.add(worldGroup);
+
+  let ramps = [];
+  let obstacles = [];
+  let weatherParticles = null;
+
+  // Deterministic smooth spline math for winding mountain trail
+  function getTrackCenterX(z) {
+    return (
+      Math.sin(z * 0.011) * 26 +
+      Math.cos(z * 0.023) * 14 +
+      Math.sin(z * 0.0045) * 42
+    );
+  }
+  function getTrackElevationY(z) {
+    // Overall downhill slope + rolling mountain hills
+    return (
+      -z * 0.075 +
+      Math.sin(z * 0.017) * 5.2 +
+      Math.cos(z * 0.036) * 2.4
+    );
+  }
+  function getTrackHeadingAngle(z) {
+    const dx = getTrackCenterX(z + 1.0) - getTrackCenterX(z - 1.0);
+    const dz = 2.0;
+    return Math.atan2(dx, dz);
+  }
+
+  // Create spoken wheel texture
+  function createSpokeWheelTexture(rimColorHex) {
+    const c = document.createElement("canvas");
+    c.width = 128;
+    c.height = 128;
+    const ctx = c.getContext("2d");
+    ctx.clearRect(0, 0, 128, 128);
+
+    // Outer tire
+    ctx.beginPath();
+    ctx.arc(64, 64, 58, 0, Math.PI * 2);
+    ctx.lineWidth = 12;
+    ctx.strokeStyle = "#181818";
+    ctx.stroke();
+
+    // Colored Rim
+    ctx.beginPath();
+    ctx.arc(64, 64, 49, 0, Math.PI * 2);
+    ctx.lineWidth = 7;
+    ctx.strokeStyle = rimColorHex || "#ffd700";
+    ctx.stroke();
+
+    // Spokes
+    ctx.strokeStyle = "rgba(220,220,220,0.85)";
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 10; i++) {
+      const a = (i / 10) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(64, 64);
+      ctx.lineTo(64 + Math.cos(a) * 46, 64 + Math.sin(a) * 46);
+      ctx.stroke();
+    }
+
+    // Hub
+    ctx.beginPath();
+    ctx.arc(64, 64, 8, 0, Math.PI * 2);
+    ctx.fillStyle = "#333";
+    ctx.fill();
+
+    const tex = new THREE.CanvasTexture(c);
+    return tex;
+  }
+
+  // Build 3D Floating Player Name + Flag + Live Rank Billboard Sprite
+  function createNameplateSprite() {
+    const c = document.createElement("canvas");
+    c.width = 320;
+    c.height = 96;
+    const tex = new THREE.CanvasTexture(c);
+    tex.minFilter = THREE.LinearFilter;
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(3.4, 1.02, 1);
+    sprite.userData = { canvas: c, ctx: c.getContext("2d"), tex, lastKey: "" };
+    return sprite;
+  }
+
+  function updateNameplateSprite(sprite, flag, name, rankNum, isPlayer) {
+    const key = `${flag}_${name}_${rankNum}`;
+    if (sprite.userData.lastKey === key) return;
+    sprite.userData.lastKey = key;
+
+    const { ctx, canvas, tex } = sprite.userData;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Pill background
+    ctx.fillStyle = isPlayer ? "rgba(0, 35, 60, 0.85)" : "rgba(12, 18, 30, 0.72)";
+    ctx.strokeStyle = isPlayer ? "#00f2fe" : "rgba(255,255,255,0.4)";
+    ctx.lineWidth = 3;
+    const rx = 24, ry = 10, rw = 272, rh = 72, rad = 18;
+    ctx.beginPath();
+    ctx.moveTo(rx + rad, ry);
+    ctx.lineTo(rx + rw - rad, ry);
+    ctx.quadraticCurveTo(rx + rw, ry, rx + rw, ry + rad);
+    ctx.lineTo(rx + rw, ry + rh - rad);
+    ctx.quadraticCurveTo(rx + rw, ry + rh, rx + rw - rad, ry + rh);
+    ctx.lineTo(rx + rad, ry + rh);
+    ctx.quadraticCurveTo(rx, ry + rh, rx, ry + rh - rad);
+    ctx.lineTo(rx, ry + rad);
+    ctx.quadraticCurveTo(rx, ry, rx + rad, ry);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Name + Flag
+    ctx.font = "bold 24px 'Segoe UI', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(`${name} ${flag}`, canvas.width / 2, 42);
+
+    // Ordinal Rank Sub-line (like "4th" in screenshot)
+    const ord = getOrdinal(rankNum);
+    ctx.font = "900 22px 'Segoe UI', sans-serif";
+    ctx.fillStyle = rankNum === 1 ? "#ffd700" : isPlayer ? "#00f2fe" : "#7bed9f";
+    ctx.fillText(ord, canvas.width / 2, 71);
+
+    tex.needsUpdate = true;
+  }
+
+  function getOrdinal(n) {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
+  // ==========================================
+  // 4. BUILD ARTICULATED 3D CYCLIST & FIRST-PERSON HANDLEBAR RIG
+  // ==========================================
+  function createCyclistMesh(config, isPlayer = false) {
+    const root = new THREE.Group();
+
+    // 3rd-Person Full Cyclist & Bike Group
+    const thirdPersonGroup = new THREE.Group();
+    root.add(thirdPersonGroup);
+
+    const wheelTex = createSpokeWheelTexture(config.rim || "#ffd700");
+    const wheelGeo = new THREE.PlaneGeometry(0.95, 0.95);
+    const wheelMat = new THREE.MeshBasicMaterial({ map: wheelTex, transparent: true, side: THREE.DoubleSide });
+
+    const rearWheel = new THREE.Mesh(wheelGeo, wheelMat);
+    rearWheel.rotation.y = Math.PI / 2;
+    rearWheel.position.set(0, 0.48, -0.62);
+    thirdPersonGroup.add(rearWheel);
+
+    const frontWheel = new THREE.Mesh(wheelGeo, wheelMat);
+    frontWheel.rotation.y = Math.PI / 2;
+    frontWheel.position.set(0, 0.48, 0.62);
+    thirdPersonGroup.add(frontWheel);
+
+    // Tire Torus rings for thickness
+    const tireGeo = new THREE.TorusGeometry(0.42, 0.075, 8, 20);
+    const tireMat = new THREE.MeshLambertMaterial({ color: 0x1a1a1a });
+    const rearTire = new THREE.Mesh(tireGeo, tireMat);
+    rearTire.rotation.y = Math.PI / 2;
+    rearTire.position.copy(rearWheel.position);
+    thirdPersonGroup.add(rearTire);
+
+    const frontTire = new THREE.Mesh(tireGeo, tireMat);
+    frontTire.rotation.y = Math.PI / 2;
+    frontTire.position.copy(frontWheel.position);
+    thirdPersonGroup.add(frontTire);
+
+    // Bike Frame Tubes
+    const frameMat = new THREE.MeshPhongMaterial({ color: config.bike || "#00a8ff", shininess: 80 });
+    const tubeGeo = new THREE.CylinderGeometry(0.045, 0.045, 1.15, 8);
+    const mainTube = new THREE.Mesh(tubeGeo, frameMat);
+    mainTube.rotation.x = Math.PI / 2.4;
+    mainTube.position.set(0, 0.78, 0);
+    thirdPersonGroup.add(mainTube);
+
+    const forkTube = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.035, 0.85, 8), frameMat);
+    forkTube.position.set(0, 0.82, 0.52);
+    forkTube.rotation.x = -0.22;
+    thirdPersonGroup.add(forkTube);
+
+    // 3rd Person Handlebar
+    const bar3D = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.82, 8), new THREE.MeshLambertMaterial({ color: 0x222222 }));
+    bar3D.rotation.z = Math.PI / 2;
+    bar3D.position.set(0, 1.18, 0.46);
+    thirdPersonGroup.add(bar3D);
+
+    // Cyclist Torso (Leaning forward)
+    const jerseyMat = new THREE.MeshLambertMaterial({ color: config.jersey || "#ff2e63" });
+    const shortsMat = new THREE.MeshLambertMaterial({ color: 0x151922 });
+    const skinMat = new THREE.MeshLambertMaterial({ color: 0xe0ac69 });
+
+    const hips = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.24, 0.32), shortsMat);
+    hips.position.set(0, 1.06, -0.22);
+    thirdPersonGroup.add(hips);
+
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.62, 0.28), jerseyMat);
+    torso.position.set(0, 1.42, -0.02);
+    torso.rotation.x = 0.62;
+    thirdPersonGroup.add(torso);
+
+    // Helmet & Head
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), skinMat);
+    head.position.set(0, 1.76, 0.22);
+    thirdPersonGroup.add(head);
+
+    const helmet = new THREE.Mesh(
+      new THREE.SphereGeometry(0.21, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.62),
+      new THREE.MeshPhongMaterial({ color: config.bike || "#00f2fe" })
+    );
+    helmet.position.set(0, 1.80, 0.22);
+    helmet.rotation.x = -0.25;
+    thirdPersonGroup.add(helmet);
+
+    // Articulated Pedaling Legs
+    const leftLegPivot = new THREE.Group();
+    leftLegPivot.position.set(-0.16, 1.02, -0.18);
+    const leftLegMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.065, 0.62, 8), shortsMat);
+    leftLegMesh.position.y = -0.28;
+    leftLegPivot.add(leftLegMesh);
+    thirdPersonGroup.add(leftLegPivot);
+
+    const rightLegPivot = new THREE.Group();
+    rightLegPivot.position.set(0.16, 1.02, -0.18);
+    const rightLegMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.065, 0.62, 8), shortsMat);
+    rightLegMesh.position.y = -0.28;
+    rightLegPivot.add(rightLegMesh);
+    thirdPersonGroup.add(rightLegPivot);
+
+    // Arms reaching to handlebar
+    const armGeo = new THREE.CylinderGeometry(0.055, 0.045, 0.56, 8);
+    const leftArm = new THREE.Mesh(armGeo, skinMat);
+    leftArm.position.set(-0.28, 1.38, 0.24);
+    leftArm.rotation.x = 1.05;
+    thirdPersonGroup.add(leftArm);
+
+    const rightArm = new THREE.Mesh(armGeo, skinMat);
+    rightArm.position.set(0.28, 1.38, 0.24);
+    rightArm.rotation.x = 1.05;
+    thirdPersonGroup.add(rightArm);
+
+    // 3D Floating Billboard Nameplate (Only on Rivals or Visible in 3rd Person)
+    const nameplate = createNameplateSprite();
+    nameplate.position.set(0, 2.55, 0);
+    root.add(nameplate);
+
+    // ==========================================
+    // FIRST-PERSON POV HANDLEBAR COCKPIT (Matches Reference Screenshots 2, 5, 6)
+    // ==========================================
+    let povGroup = null;
+    let speedNeedle = null;
+    if (isPlayer) {
+      povGroup = new THREE.Group();
+      povGroup.position.set(0, 1.34, 0.35);
+      root.add(povGroup);
+
+      const barColorMat = new THREE.MeshPhongMaterial({ color: config.bike || "#00a8ff", shininess: 90 });
+      const darkMetalMat = new THREE.MeshPhongMaterial({ color: 0x222831, shininess: 60 });
+      const gripMat = new THREE.MeshLambertMaterial({ color: 0x181818 });
+      const gloveMat = new THREE.MeshLambertMaterial({ color: 0x111317 });
+
+      // Curved MTB Handlebar Assembly
+      const centerBar = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.52, 12), barColorMat);
+      centerBar.rotation.z = Math.PI / 2;
+      centerBar.position.set(0, -0.18, 0.55);
+      povGroup.add(centerBar);
+
+      const leftRise = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.32, 12), barColorMat);
+      leftRise.rotation.z = Math.PI / 2 - 0.32;
+      leftRise.position.set(-0.38, -0.13, 0.55);
+      povGroup.add(leftRise);
+
+      const rightRise = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.32, 12), barColorMat);
+      rightRise.rotation.z = Math.PI / 2 + 0.32;
+      rightRise.position.set(0.38, -0.13, 0.55);
+      povGroup.add(rightRise);
+
+      // Left & Right Handle Grips + Brake Levers
+      const leftGrip = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.28, 12), gripMat);
+      leftGrip.rotation.z = Math.PI / 2;
+      leftGrip.position.set(-0.62, -0.08, 0.54);
+      povGroup.add(leftGrip);
+
+      const rightGrip = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.28, 12), gripMat);
+      rightGrip.rotation.z = Math.PI / 2;
+      rightGrip.position.set(0.62, -0.08, 0.54);
+      povGroup.add(rightGrip);
+
+      // Gloved Hands & Forearms (Just like screenshot 2, 5, 6)
+      const leftGlove = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.11, 0.16), gloveMat);
+      leftGlove.position.set(-0.60, -0.06, 0.51);
+      povGroup.add(leftGlove);
+
+      const rightGlove = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.11, 0.16), gloveMat);
+      rightGlove.position.set(0.60, -0.06, 0.51);
+      povGroup.add(rightGlove);
+
+      const leftForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.08, 0.52, 10), skinMat);
+      leftForearm.position.set(-0.72, -0.22, 0.28);
+      leftForearm.rotation.x = 1.15;
+      leftForearm.rotation.z = -0.28;
+      povGroup.add(leftForearm);
+
+      const rightForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.08, 0.52, 10), skinMat);
+      rightForearm.position.set(0.72, -0.22, 0.28);
+      rightForearm.rotation.x = 1.15;
+      rightForearm.rotation.z = 0.28;
+      povGroup.add(rightForearm);
+
+      // Stem-mounted Analog Speedometer Dial (Center of handlebars)
+      const stemBox = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 0.12), darkMetalMat);
+      stemBox.position.set(0, -0.13, 0.54);
+      stemBox.rotation.x = -0.45;
+      povGroup.add(stemBox);
+
+      const dialFace = new THREE.Mesh(
+        new THREE.CircleGeometry(0.06, 16),
+        new THREE.MeshBasicMaterial({ color: 0xf8fafc })
+      );
+      dialFace.position.set(0, -0.10, 0.478);
+      dialFace.rotation.y = Math.PI;
+      dialFace.rotation.x = 0.45;
+      povGroup.add(dialFace);
+
+      speedNeedle = new THREE.Mesh(
+        new THREE.BoxGeometry(0.008, 0.048, 0.004),
+        new THREE.MeshBasicMaterial({ color: 0xff0844 })
+      );
+      speedNeedle.position.set(0, -0.10, 0.474);
+      povGroup.add(speedNeedle);
+    }
+
+    return {
+      root,
+      thirdPersonGroup,
+      povGroup,
+      speedNeedle,
+      leftLegPivot,
+      rightLegPivot,
+      frontWheel,
+      rearWheel,
+      nameplate
+    };
+  }
+
+  // ==========================================
+  // 5. BUILD PROCEDURAL 3D BIOME TRACK & OBSTACLES
+  // ==========================================
+  function buildBiomeTrack(biomeKey) {
+    scene.remove(worldGroup);
+    worldGroup = new THREE.Group();
+    scene.add(worldGroup);
+    ramps = [];
+    obstacles = [];
+
+    const b = BIOMES[biomeKey];
+    scene.fog.color.setHex(b.fogColor);
+    renderer.setClearColor(b.fogColor);
+
+    // Segmented Ribbon Geometry for Smooth Winding Mountain Trail
+    const segCount = 350;
+    const segLen = TRACK_LENGTH / segCount;
+
+    const roadGeo = new THREE.BufferGeometry();
+    const terrainGeo = new THREE.BufferGeometry();
+    const roadVerts = [];
+    const roadColors = [];
+    const terrainVerts = [];
+    const terrainColors = [];
+
+    const cRoad1 = new THREE.Color(b.roadColor);
+    const cRoad2 = new THREE.Color(b.roadColor).multiplyScalar(0.92);
+    const cGround1 = new THREE.Color(b.groundColor);
+    const cGround2 = new THREE.Color(b.groundColor).multiplyScalar(0.88);
+
+    for (let i = 0; i < segCount; i++) {
+      const z0 = i * segLen;
+      const z1 = (i + 1) * segLen;
+      const x0 = getTrackCenterX(z0);
+      const x1 = getTrackCenterX(z1);
+      const y0 = getTrackElevationY(z0);
+      const y1 = getTrackElevationY(z1);
+
+      const hw = TRACK_WIDTH * 0.5;
+      // Road Quad (2 triangles)
+      roadVerts.push(
+        x0 - hw, y0 + 0.04, z0,
+        x0 + hw, y0 + 0.04, z0,
+        x1 - hw, y1 + 0.04, z1,
+        x0 + hw, y0 + 0.04, z0,
+        x1 + hw, y1 + 0.04, z1,
+        x1 - hw, y1 + 0.04, z1
+      );
+      const rc = i % 2 === 0 ? cRoad1 : cRoad2;
+      for (let k = 0; k < 6; k++) roadColors.push(rc.r, rc.g, rc.b);
+
+      // Wide Outer Mountain Valley Quad
+      const gw = 110;
+      terrainVerts.push(
+        x0 - gw, y0 - 0.15, z0,
+        x0 + gw, y0 - 0.15, z0,
+        x1 - gw, y1 - 0.15, z1,
+        x0 + gw, y0 - 0.15, z0,
+        x1 + gw, y1 - 0.15, z1,
+        x1 - gw, y1 - 0.15, z1
+      );
+      const gc = i % 2 === 0 ? cGround1 : cGround2;
+      for (let k = 0; k < 6; k++) terrainColors.push(gc.r, gc.g, gc.b);
+    }
+
+    roadGeo.setAttribute("position", new THREE.Float32BufferAttribute(roadVerts, 3));
+    roadGeo.setAttribute("color", new THREE.Float32BufferAttribute(roadColors, 3));
+    roadGeo.computeVertexNormals();
+    const roadMesh = new THREE.Mesh(roadGeo, new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide }));
+    worldGroup.add(roadMesh);
+
+    terrainGeo.setAttribute("position", new THREE.Float32BufferAttribute(terrainVerts, 3));
+    terrainGeo.setAttribute("color", new THREE.Float32BufferAttribute(terrainColors, 3));
+    terrainGeo.computeVertexNormals();
+    const terrainMesh = new THREE.Mesh(terrainGeo, new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide }));
+    worldGroup.add(terrainMesh);
+
+    // Wooden Jump Ramps along the trail (Just like screenshot 5)
+    const rampMat = new THREE.MeshLambertMaterial({ color: 0xc98a4b });
+    for (let z = 110; z < TRACK_LENGTH - 140; z += 145) {
+      const laneOffset = ((z * 17) % 7) - 3.5;
+      const rx = getTrackCenterX(z) + laneOffset;
+      const ry = getTrackElevationY(z);
+      const heading = getTrackHeadingAngle(z);
+
+      const rampGroup = new THREE.Group();
+      rampGroup.position.set(rx, ry, z);
+      rampGroup.rotation.y = heading;
+
+      const wedge = new THREE.Mesh(new THREE.BoxGeometry(3.4, 1.1, 5.5), rampMat);
+      wedge.rotation.x = -0.24;
+      wedge.position.y = 0.35;
+      rampGroup.add(wedge);
+
+      worldGroup.add(rampGroup);
+      ramps.push({ zStart: z - 2.8, zEnd: z + 2.8, laneOffset, width: 3.4 });
+    }
+
+    // Trackside Props (Trees / Snow Flags / Cacti & Rocks)
+    const trunkMat = new THREE.MeshLambertMaterial({ color: 0x5c3a21 });
+    const leafMat = new THREE.MeshLambertMaterial({
+      color: biomeKey === "snow" ? 0xdff9fb : biomeKey === "desert" ? 0x2ecc71 : 0x1e824c
+    });
+    const flagMatOrange = new THREE.MeshBasicMaterial({ color: 0xff7f00, side: THREE.DoubleSide });
+    const flagMatGreen = new THREE.MeshBasicMaterial({ color: 0x00e676, side: THREE.DoubleSide });
+
+    for (let z = 20; z < TRACK_LENGTH; z += 11) {
+      const cx = getTrackCenterX(z);
+      const cy = getTrackElevationY(z);
+
+      // Left & Right Forest / Props
+      [-1, 1].forEach((side, idx) => {
+        const dist = TRACK_WIDTH * 0.5 + 2.2 + ((z * (idx + 3)) % 18);
+        const px = cx + side * dist;
+        const py = cy;
+
+        if (biomeKey === "desert") {
+          // Cactus or Red Rock
+          const cactus = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.4, 4.2, 7), leafMat);
+          cactus.position.set(px, py + 2.1, z);
+          worldGroup.add(cactus);
+        } else {
+          // Pine Tree
+          const tree = new THREE.Group();
+          tree.position.set(px, py, z);
+          const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.42, 2.6, 6), trunkMat);
+          trunk.position.y = 1.3;
+          tree.add(trunk);
+
+          const cone1 = new THREE.Mesh(new THREE.ConeGeometry(2.1, 4.5, 7), leafMat);
+          cone1.position.y = 4.2;
+          tree.add(cone1);
+
+          const cone2 = new THREE.Mesh(new THREE.ConeGeometry(1.5, 3.6, 7), leafMat);
+          cone2.position.y = 6.4;
+          tree.add(cone2);
+          worldGroup.add(tree);
+        }
+
+        // Slalom Flags & Wooden Fences on Snowy / Forest bends
+        if (z % 33 === 0) {
+          const fx = cx + side * (TRACK_WIDTH * 0.5 + 0.5);
+          const flagBanner = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.9, 2.5),
+            side < 0 ? flagMatOrange : flagMatGreen
+          );
+          flagBanner.position.set(fx, cy + 1.3, z);
+          flagBanner.rotation.y = Math.PI / 2;
+          worldGroup.add(flagBanner);
+        }
+      });
+    }
+
+    // Finish Arch Banner at Z = TRACK_LENGTH
+    const fx = getTrackCenterX(TRACK_LENGTH);
+    const fy = getTrackElevationY(TRACK_LENGTH);
+    const archGroup = new THREE.Group();
+    archGroup.position.set(fx, fy, TRACK_LENGTH);
+    archGroup.rotation.y = getTrackHeadingAngle(TRACK_LENGTH);
+
+    const pillarGeo = new THREE.CylinderGeometry(0.35, 0.35, 7, 10);
+    const pillarMat = new THREE.MeshLambertMaterial({ color: 0xff0844 });
+    const leftPillar = new THREE.Mesh(pillarGeo, pillarMat);
+    leftPillar.position.set(-TRACK_WIDTH * 0.5, 3.5, 0);
+    archGroup.add(leftPillar);
+
+    const rightPillar = new THREE.Mesh(pillarGeo, pillarMat);
+    rightPillar.position.set(TRACK_WIDTH * 0.5, 3.5, 0);
+    archGroup.add(rightPillar);
+
+    const topBanner = new THREE.Mesh(
+      new THREE.BoxGeometry(TRACK_WIDTH + 1, 1.4, 0.4),
+      new THREE.MeshBasicMaterial({ color: 0xffd700 })
+    );
+    topBanner.position.set(0, 6.6, 0);
+    archGroup.add(topBanner);
+    worldGroup.add(archGroup);
+  }
+
+  // ==========================================
+  // 6. RACER STATE MANAGEMENT (1 PLAYER + 9 REALISTIC RIVALS)
+  // ==========================================
+  let racers = [];
+  let playerRacer = null;
+  let progressDots = [];
+
+  const keys = { left: false, right: false, up: false, down: false, boost: false };
+
+  function setupRaceParticipants() {
+    // Clear old progress dots
+    const trackBar = document.getElementById("progress-track");
+    progressDots.forEach(d => d.remove());
+    progressDots = [];
+
+    const playerName = (document.getElementById("input-name").value || "Racer_Pro").trim();
+    const playerFlag = document.getElementById("input-flag").value;
+    const playerBikeColor = document.getElementById("input-bike-color").value;
+    cameraMode = document.getElementById("input-cam-mode").value;
+
+    // Shuffle Global Rider Pool & pick 9 unique rivals
+    const shuffledRivals = [...GLOBAL_RIDER_POOL].sort(() => Math.random() - 0.5).slice(0, 9);
+
+    racers = [];
+
+    // Create Player + 9 Rivals (10 total)
+    const allConfigs = [
+      {
+        name: playerName,
+        flag: playerFlag,
+        jersey: "#ff2e63",
+        bike: playerBikeColor,
+        rim: "#00f2fe",
+        isPlayer: true
+      },
+      ...shuffledRivals.map(r => ({ ...r, isPlayer: false }))
+    ];
+
+    allConfigs.forEach((cfg, idx) => {
+      const meshObj = createCyclistMesh(cfg, cfg.isPlayer);
+      worldGroup.add(meshObj.root);
+
+      // Starting grid (2 rows of 5 riders)
+      const row = Math.floor(idx / 5);
+      const col = idx % 5;
+      const startLane = (col - 2) * 2.1;
+      const startZ = 8 + row * 4.5;
+
+      // Progress bar dot
+      const dot = document.createElement("div");
+      dot.className = "progress-dot" + (cfg.isPlayer ? " player" : "");
+      dot.style.left = "0%";
+      trackBar.appendChild(dot);
+      progressDots.push(dot);
+
+      const racer = {
+        id: idx,
+        name: cfg.name,
+        flag: cfg.flag,
+        isPlayer: cfg.isPlayer,
+        mesh: meshObj,
+        dotEl: dot,
+        z: startZ,
+        laneOffset: startLane,
+        targetLane: startLane,
+        vx: 0,
+        speed: 0,
+        maxSpeed: cfg.isPlayer ? 49 : 46.5 + (Math.random() * 4.2 - 1.8),
+        topSpeedRecorded: 0,
+        yOffset: 0,
+        vy: 0,
+        pedalPhase: Math.random() * Math.PI * 2,
+        leanAngle: 0,
+        rank: idx + 1,
+        finished: false,
+        finishTime: 0,
+        laneTimer: 0.5 + Math.random() * 1.8
+      };
+
+      racers.push(racer);
+      if (cfg.isPlayer) playerRacer = racer;
+    });
+
+    applyCameraModeVisibility();
+    updateAllRacerTransforms(0.016);
+  }
+
+  function applyCameraModeVisibility() {
+    if (!playerRacer) return;
+    if (cameraMode === "pov") {
+      playerRacer.mesh.thirdPersonGroup.visible = false;
+      playerRacer.mesh.nameplate.visible = false;
+      if (playerRacer.mesh.povGroup) playerRacer.mesh.povGroup.visible = true;
+    } else {
+      playerRacer.mesh.thirdPersonGroup.visible = true;
+      playerRacer.mesh.nameplate.visible = true;
+      if (playerRacer.mesh.povGroup) playerRacer.mesh.povGroup.visible = false;
+    }
+  }
+
+  // ==========================================
+  // 7. PHYSICS, HUMAN-LIKE RIVAL STEERING & CAMERA LOOP
+  // ==========================================
+  let raceStartTime = 0;
+  let toastTimeout = null;
+
+  function showToast(msg) {
+    const el = document.getElementById("event-toast");
+    el.textContent = msg;
+    el.style.opacity = "1";
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => { el.style.opacity = "0"; }, 1100);
+  }
+
+  function updateAllRacerTransforms(dt) {
+    const maxLane = TRACK_WIDTH * 0.44;
+
+    racers.forEach(r => {
+      if (gameState === "racing" && !r.finished) {
+        if (r.isPlayer) {
+          // Player acceleration (Auto-pedal gentle cruise + active pedal/sprint boost)
+          const baseCruise = 41.5;
+          const targetTop = keys.boost ? 58.5 : keys.up ? 50.5 : baseCruise;
+          const accel = keys.boost ? 24 : 15;
+
+          if (keys.down) {
+            r.speed = Math.max(12, r.speed - 32 * dt);
+          } else if (r.speed < targetTop) {
+            r.speed = Math.min(targetTop, r.speed + accel * dt);
+          } else {
+            r.speed = Math.max(targetTop, r.speed - 10 * dt);
+          }
+
+          // Steering
+          let steerInput = 0;
+          if (keys.left) steerInput -= 1;
+          if (keys.right) steerInput += 1;
+
+          r.laneOffset += steerInput * 10.5 * dt;
+          r.laneOffset = Math.max(-maxLane, Math.min(maxLane, r.laneOffset));
+          r.leanAngle = THREE.MathUtils.lerp(r.leanAngle, -steerInput * 0.28, 10 * dt);
+
+          // Slipstream Drafting behind any rival ahead
+          for (const other of racers) {
+            if (other !== r) {
+              const dz = other.z - r.z;
+              const dx = Math.abs(other.laneOffset - r.laneOffset);
+              if (dz > 2.0 && dz < 11.0 && dx < 1.35) {
+                r.speed = Math.min(60, r.speed + 9.5 * dt);
+                if (Math.random() < 0.03) showToast("⚡ SLIPSTREAM DRAFT +SPEED!");
+                break;
+              }
+            }
+          }
+
+          sfx.chainTick(r.speed / 55);
+        } else {
+          // Organic Human-Like Rival Behavior (Lane switching, ramp seeking, competitive pacing)
+          r.laneTimer -= dt;
+          if (r.laneTimer <= 0) {
+            r.laneTimer = 0.9 + Math.random() * 2.2;
+            r.targetLane = (Math.random() * 2 - 1) * (maxLane * 0.85);
+          }
+          const laneDiff = r.targetLane - r.laneOffset;
+          const steerStep = Math.sign(laneDiff) * Math.min(Math.abs(laneDiff), 6.2 * dt);
+          r.laneOffset += steerStep;
+          r.leanAngle = THREE.MathUtils.lerp(r.leanAngle, -Math.sign(laneDiff) * 0.16, 6 * dt);
+
+          // Competitive rubber-banding so all 10 riders stay in an exciting pack
+          const distToPlayer = playerRacer.z - r.z;
+          let dynamicMax = r.maxSpeed;
+          if (distToPlayer > 28) dynamicMax += 6.5;
+          else if (distToPlayer < -32) dynamicMax -= 4.5;
+
+          r.speed = THREE.MathUtils.lerp(r.speed, dynamicMax, 2.5 * dt);
+        }
+
+        // Advance along track
+        r.z += r.speed * dt;
+        if (r.speed > r.topSpeedRecorded) r.topSpeedRecorded = r.speed;
+
+        // Check Wooden Jump Ramps
+        if (r.yOffset <= 0.05) {
+          for (const ramp of ramps) {
+            if (r.z >= ramp.zStart && r.z <= ramp.zEnd && Math.abs(r.laneOffset - ramp.laneOffset) < ramp.width * 0.65) {
+              r.vy = 9.2;
+              r.speed = Math.min(62, r.speed + 4.5);
+              if (r.isPlayer) {
+                sfx.boostWhoosh();
+                showToast("🚀 BIG AIR JUMP +BOOST!");
+              }
+              break;
+            }
+          }
+        }
+
+        // Air gravity physics
+        if (r.yOffset > 0 || r.vy > 0) {
+          r.yOffset += r.vy * dt;
+          r.vy -= 21.0 * dt;
+          if (r.yOffset <= 0) {
+            r.yOffset = 0;
+            r.vy = 0;
+          }
+        }
+
+        // Finish Line Check
+        if (r.z >= TRACK_LENGTH) {
+          r.z = TRACK_LENGTH;
+          r.finished = true;
+          r.finishTime = (performance.now() - raceStartTime) / 1000;
+          if (r.isPlayer) {
+            completeRace();
+          }
+        }
+      }
+
+      // Rider-to-Rider Side Bump Collision
+      for (const other of racers) {
+        if (other.id <= r.id) continue;
+        const dz = Math.abs(r.z - other.z);
+        const dx = r.laneOffset - other.laneOffset;
+        if (dz < 1.35 && Math.abs(dx) < 0.95 && Math.abs(r.yOffset - other.yOffset) < 1.0) {
+          const push = (dx >= 0 ? 1 : -1) * 0.48;
+          r.laneOffset = Math.max(-maxLane, Math.min(maxLane, r.laneOffset + push));
+          other.laneOffset = Math.max(-maxLane, Math.min(maxLane, other.laneOffset - push));
+          if (r.isPlayer || other.isPlayer) sfx.bumpSound();
+        }
+      }
+
+      // Position & Orientation in 3D World
+      const cx = getTrackCenterX(r.z);
+      const cy = getTrackElevationY(r.z);
+      const heading = getTrackHeadingAngle(r.z);
+      const pitchSlope = (getTrackElevationY(r.z + 1.5) - cy) / 1.5;
+
+      const worldX = cx + Math.cos(heading) * r.laneOffset;
+      const worldZ = r.z - Math.sin(heading) * r.laneOffset;
+
+      r.mesh.root.position.set(worldX, cy + r.yOffset, worldZ);
+      r.mesh.root.rotation.set(-pitchSlope * 0.65, heading, r.leanAngle);
+
+      // Animate Pedaling Legs & Wheels
+      r.pedalPhase += r.speed * dt * 0.45;
+      r.mesh.leftLegPivot.rotation.x = Math.sin(r.pedalPhase) * 0.55;
+      r.mesh.rightLegPivot.rotation.x = Math.sin(r.pedalPhase + Math.PI) * 0.55;
+      r.mesh.frontWheel.rotation.z -= r.speed * dt * 0.5;
+      r.mesh.rearWheel.rotation.z -= r.speed * dt * 0.5;
+
+      // First-Person Handlebar Dynamic Tilt & Speedometer Needle
+      if (r.isPlayer && r.mesh.povGroup) {
+        r.mesh.povGroup.rotation.z = r.leanAngle * 0.85;
+        r.mesh.povGroup.position.y = 1.34 + Math.sin(r.pedalPhase * 2) * 0.018;
+        if (r.mesh.speedNeedle) {
+          const ratio = Math.min(1, r.speed / 60);
+          r.mesh.speedNeedle.rotation.z = (ratio - 0.5) * 2.2;
+        }
+      }
+    });
+
+    // Sort Live Ranks by Z distance
+    const sorted = [...racers].sort((a, b) => b.z - a.z);
+    sorted.forEach((r, index) => {
+      r.rank = index + 1;
+      updateNameplateSprite(r.mesh.nameplate, r.flag, r.name, r.rank, r.isPlayer);
+      const pct = Math.min(100, Math.max(0, (r.z / TRACK_LENGTH) * 100));
+      r.dotEl.style.left = pct.toFixed(1) + "%";
+    });
+
+    // Update HUD Badges
+    if (playerRacer) {
+      document.getElementById("hud-rank").textContent = getOrdinal(playerRacer.rank);
+      document.getElementById("hud-speed").textContent = Math.round(playerRacer.speed * 1.35);
+
+      // Update Camera Position
+      const pPos = playerRacer.mesh.root.position;
+      const heading = getTrackHeadingAngle(playerRacer.z);
+      const slope = (getTrackElevationY(playerRacer.z + 2) - getTrackElevationY(playerRacer.z)) / 2;
+
+      if (cameraMode === "pov") {
+        // First-Person Rider Eye Position looking over the handlebars
+        camera.position.set(
+          pPos.x - Math.sin(heading) * 0.05,
+          pPos.y + 1.48,
+          pPos.z - Math.cos(heading) * 0.05
+        );
+        const lookZ = playerRacer.z + 18;
+        const lookX = getTrackCenterX(lookZ) + playerRacer.laneOffset * 0.85;
+        const lookY = getTrackElevationY(lookZ) + 0.7;
+        camera.lookAt(lookX, lookY, lookZ);
+        camera.rotation.z = playerRacer.leanAngle * 0.35;
+      } else {
+        // Third-Person Chase Camera (Like Screenshots 3 & 4)
+        const camDist = 5.4;
+        const camHeight = 2.85;
+        const targetCamX = pPos.x - Math.sin(heading) * camDist;
+        const targetCamY = pPos.y + camHeight - slope * 1.5;
+        const targetCamZ = pPos.z - Math.cos(heading) * camDist;
+
+        camera.position.lerp(new THREE.Vector3(targetCamX, targetCamY, targetCamZ), 0.18);
+        camera.lookAt(
+          pPos.x + Math.sin(heading) * 6,
+          pPos.y + 1.2 + slope * 3,
+          pPos.z + Math.cos(heading) * 6
+        );
+      }
+    }
+  }
+
+  // ==========================================
+  // 8. MATCHMAKING LOBBY, COUNTDOWN & FINISH LEADERBOARD
+  // ==========================================
+  function startLobbyMatchmaking() {
+    sfx.init();
+    document.getElementById("menu-screen").style.display = "none";
+    const lobbyScreen = document.getElementById("lobby-screen");
+    const slotsContainer = document.getElementById("lobby-slots");
+    const statusText = document.getElementById("lobby-status-text");
+    lobbyScreen.style.display = "flex";
+    slotsContainer.innerHTML = "";
+
+    buildBiomeTrack(currentBiomeKey);
+    setupRaceParticipants();
+
+    let connected = 0;
+    const interval = setInterval(() => {
+      if (connected < racers.length) {
+        const r = racers[connected];
+        const slot = document.createElement("div");
+        slot.className = "lobby-slot ready";
+        const ping = 22 + Math.floor(Math.random() * 48);
+        slot.innerHTML = `<span>${r.flag} ${r.name}</span><span class="ping-tag">${ping}ms • READY</span>`;
+        slotsContainer.appendChild(slot);
+        connected++;
+        statusText.textContent = `Connecting Riders (${connected}/10)...`;
+        sfx.beep(420 + connected * 35, 0.07, "sine");
+      } else {
+        clearInterval(interval);
+        statusText.textContent = "Lobby Full (10/10)! Spawning on Mountain Gate...";
+        setTimeout(() => {
+          lobbyScreen.style.display = "none";
+          startRaceCountdown();
+        }, 550);
+      }
+    }, 140);
+  }
+
+  function startRaceCountdown() {
+    document.getElementById("hud").style.display = "block";
+    gameState = "countdown";
+    const banner = document.getElementById("center-banner");
+    const steps = ["3", "2", "1", "GO!"];
+    let idx = 0;
+
+    const tick = () => {
+      if (idx < steps.length) {
+        banner.textContent = steps[idx];
+        banner.style.opacity = "1";
+        banner.style.transform = "translate(-50%, -50%) scale(1.15)";
+        sfx.beep(idx === 3 ? 880 : 480, idx === 3 ? 0.3 : 0.14, "triangle");
+
+        if (idx === 3) {
+          gameState = "racing";
+          raceStartTime = performance.now();
+        }
+        idx++;
+        setTimeout(() => {
+          banner.style.opacity = "0";
+          banner.style.transform = "translate(-50%, -50%) scale(0.9)";
+        }, 650);
+        if (idx < steps.length) setTimeout(tick, 800);
+      }
+    };
+    tick();
+  }
+
+  function completeRace() {
+    gameState = "finished";
+    sfx.beep(780, 0.18, "triangle");
+    setTimeout(() => sfx.beep(1040, 0.35, "triangle"), 180);
+
+    // Fill simulated finish times for any remaining riders
+    const baseNow = (performance.now() - raceStartTime) / 1000;
+    const sorted = [...racers].sort((a, b) => b.z - a.z);
+
+    const tbody = document.getElementById("leaderboard-body");
+    tbody.innerHTML = "";
+
+    sorted.forEach((r, idx) => {
+      const pos = idx + 1;
+      const t = r.finished ? r.finishTime : baseNow + (TRACK_LENGTH - r.z) * 0.025 + idx * 0.4;
+      const topSpd = Math.round(Math.max(48, r.topSpeedRecorded) * 1.35);
+      const reward = Math.max(50, 1000 - idx * 100);
+
+      const tr = document.createElement("tr");
+      if (r.isPlayer) tr.className = "me-row";
+      tr.innerHTML = `
+        <td>${getOrdinal(pos)}</td>
+        <td>${r.flag} ${r.name}</td>
+        <td>${t.toFixed(2)}s</td>
+        <td>${topSpd} km/h</td>
+        <td>🪙 +${reward}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById("finish-headline").textContent =
+      playerRacer.rank <= 3 ? `🏆 PODIUM FINISH (${getOrdinal(playerRacer.rank)})!` : `RACE COMPLETED (${getOrdinal(playerRacer.rank)})`;
+    document.getElementById("finish-screen").style.display = "flex";
+  }
+
+  // ==========================================
+  // 9. UI & INPUT EVENT LISTENERS
+  // ==========================================
+  document.querySelectorAll(".biome-card").forEach(card => {
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".biome-card").forEach(c => c.classList.remove("active"));
+      card.classList.add("active");
+      currentBiomeKey = card.dataset.biome;
+      buildBiomeTrack(currentBiomeKey);
+    });
+  });
+
+  document.getElementById("btn-find-match").addEventListener("click", startLobbyMatchmaking);
+
+  document.getElementById("btn-next-race").addEventListener("click", () => {
+    document.getElementById("finish-screen").style.display = "none";
+    document.getElementById("menu-screen").style.display = "flex";
+    document.getElementById("hud").style.display = "none";
+    gameState = "menu";
+  });
+
+  function toggleCamera() {
+    cameraMode = cameraMode === "pov" ? "chase" : "pov";
+    applyCameraModeVisibility();
+    showToast(cameraMode === "pov" ? "🎥 HANDLEBAR POV CAMERA" : "🎥 3RD-PERSON CHASE CAMERA");
+  }
+
+  document.getElementById("btn-camera").addEventListener("click", toggleCamera);
+
+  document.getElementById("btn-audio").addEventListener("click", (e) => {
+    sfx.muted = !sfx.muted;
+    e.currentTarget.textContent = sfx.muted ? "🔇" : "🔊";
+  });
+
+  document.getElementById("btn-fullscreen").addEventListener("click", () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+
+  // Keyboard Controls
+  window.addEventListener("keydown", (e) => {
+    const k = e.key.toLowerCase();
+    if (k === "a" || e.key === "ArrowLeft") keys.left = true;
+    if (k === "d" || e.key === "ArrowRight") keys.right = true;
+    if (k === "w" || e.key === "ArrowUp") keys.up = true;
+    if (k === "s" || e.key === "ArrowDown") keys.down = true;
+    if (e.code === "Space") {
+      if (!keys.boost && gameState === "racing") sfx.boostWhoosh();
+      keys.boost = true;
+    }
+    if (k === "c" && (gameState === "racing" || gameState === "countdown")) {
+      toggleCamera();
+    }
+  });
+
+  window.addEventListener("keyup", (e) => {
+    const k = e.key.toLowerCase();
+    if (k === "a" || e.key === "ArrowLeft") keys.left = false;
+    if (k === "d" || e.key === "ArrowRight") keys.right = false;
+    if (k === "w" || e.key === "ArrowUp") keys.up = false;
+    if (k === "s" || e.key === "ArrowDown") keys.down = false;
+    if (e.code === "Space") keys.boost = false;
+  });
+
+  // Touch & Mouse Hold Helper
+  function bindHoldButton(btnId, keyProp) {
+    const btn = document.getElementById(btnId);
+    const start = (e) => {
+      e.preventDefault();
+      keys[keyProp] = true;
+      btn.classList.add("active");
+      if (keyProp === "boost" && gameState === "racing") sfx.boostWhoosh();
+    };
+    const end = (e) => {
+      e.preventDefault();
+      keys[keyProp] = false;
+      btn.classList.remove("active");
+    };
+    btn.addEventListener("touchstart", start, { passive: false });
+    btn.addEventListener("touchend", end, { passive: false });
+    btn.addEventListener("touchcancel", end, { passive: false });
+    btn.addEventListener("mousedown", start);
+    btn.addEventListener("mouseup", end);
+    btn.addEventListener("mouseleave", end);
+  }
+
+  bindHoldButton("btn-left", "left");
+  bindHoldButton("btn-right", "right");
+  bindHoldButton("btn-brake", "down");
+  bindHoldButton("btn-boost", "boost");
+
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // Initial background showcase scene
+  buildBiomeTrack("forest");
+  setupRaceParticipants();
+
+  // Main 60FPS Render Loop
+  let lastTime = performance.now();
+  function animate(now) {
+    requestAnimationFrame(animate);
+    const dt = Math.min(0.05, (now - lastTime) / 1000);
+    lastTime = now;
+
+    if (gameState === "menu") {
+      // Gently orbit camera around starting line in menu
+      const t = now * 0.0004;
+      camera.position.set(Math.sin(t) * 8, 4.2, -4 + Math.cos(t) * 4);
+      camera.lookAt(0, 1.2, 18);
+    } else {
+      updateAllRacerTransforms(dt);
+    }
+
+    renderer.render(scene, camera);
+  }
+  requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
