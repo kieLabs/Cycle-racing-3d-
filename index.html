@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Extreme Cycle Rush 3D — Live Downhill Racing</title>
+<title>Extreme Cycle Rush 3D — 10 World Tour Locations</title>
 <style>
   :root {
     --primary: #00f2fe;
     --accent: #ff0844;
     --gold: #ffd700;
-    --dark: rgba(10, 15, 28, 0.85);
-    --glass: rgba(255, 255, 255, 0.12);
+    --dark: rgba(10, 15, 28, 0.88);
   }
   * {
     box-sizing: border-box;
@@ -35,7 +34,7 @@
     display: block;
     z-index: 1;
   }
-  
+
   /* HUD OVERLAY */
   #hud {
     position: absolute;
@@ -46,44 +45,55 @@
   }
   .hud-btn {
     pointer-events: auto;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.92);
     color: #103050;
     border: 2px solid #206090;
     border-radius: 50%;
     width: 44px;
     height: 44px;
     font-weight: 900;
-    font-size: 16px;
+    font-size: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     transition: transform 0.12s ease;
   }
   .hud-btn:active {
     transform: scale(0.9);
   }
 
-  /* Top Left Buttons */
   .top-left {
     position: absolute;
     top: 14px;
     left: 14px;
     display: flex;
-    gap: 10px;
+    gap: 8px;
   }
 
-  /* Top Center Progress Bar (Exact match to reference screenshots) */
+  /* Top Center Progress Bar */
   .top-center {
     position: absolute;
     top: 16px;
     left: 50%;
     transform: translateX(-50%);
-    width: min(420px, 52vw);
+    width: min(420px, 50vw);
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 5px;
+  }
+  .stage-badge {
+    background: rgba(10, 18, 34, 0.8);
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 2px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffd700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
   }
   .progress-track {
     position: relative;
@@ -139,7 +149,7 @@
     gap: 6px;
   }
   .rank-pill {
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.94);
     color: #0e4a7b;
     padding: 5px 12px;
     border-radius: 10px;
@@ -163,8 +173,8 @@
     border-radius: 1px;
   }
   .speed-pill {
-    background: rgba(10, 18, 32, 0.82);
-    border: 1px solid rgba(0, 242, 254, 0.5);
+    background: rgba(10, 18, 32, 0.86);
+    border: 1px solid rgba(0, 242, 254, 0.55);
     color: #00f2fe;
     padding: 4px 10px;
     border-radius: 8px;
@@ -173,7 +183,6 @@
     letter-spacing: 0.5px;
   }
 
-  /* Center Banner for Countdown & Stunts */
   #center-banner {
     position: absolute;
     top: 32%;
@@ -191,21 +200,22 @@
   }
   #event-toast {
     position: absolute;
-    top: 20%;
+    top: 21%;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 800;
     color: #ffd700;
-    background: rgba(0,0,0,0.65);
+    background: rgba(0,0,0,0.72);
     padding: 6px 16px;
     border-radius: 20px;
     border: 1px solid rgba(255,215,0,0.5);
     opacity: 0;
     transition: opacity 0.25s;
+    white-space: nowrap;
   }
 
-  /* Mobile Touch Controls */
+  /* Touch Controls */
   .touch-controls {
     position: absolute;
     bottom: 18px;
@@ -225,8 +235,8 @@
     width: 64px;
     height: 64px;
     border-radius: 18px;
-    background: rgba(15, 23, 42, 0.72);
-    border: 2px solid rgba(255, 255, 255, 0.35);
+    background: rgba(15, 23, 42, 0.75);
+    border: 2px solid rgba(255, 255, 255, 0.38);
     color: #fff;
     font-size: 24px;
     font-weight: 900;
@@ -239,125 +249,155 @@
     touch-action: manipulation;
   }
   .ctrl-btn:active, .ctrl-btn.active {
-    background: rgba(0, 242, 254, 0.35);
+    background: rgba(0, 242, 254, 0.38);
     border-color: #00f2fe;
     transform: scale(0.93);
   }
   .ctrl-btn.boost-btn {
-    background: linear-gradient(135deg, rgba(255,8,68,0.8), rgba(255,177,153,0.8));
+    background: linear-gradient(135deg, rgba(255,8,68,0.85), rgba(255,140,0,0.85));
     border-color: #ffd700;
-    font-size: 14px;
-    letter-spacing: 0.5px;
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.15;
   }
   .ctrl-btn.brake-btn {
     width: 54px;
     height: 54px;
-    font-size: 13px;
-    background: rgba(220, 38, 38, 0.65);
+    font-size: 12px;
+    background: rgba(220, 38, 38, 0.7);
   }
 
-  /* OVERLAY SCREENS (MAIN MENU, LOBBY, PODIUM) */
+  /* OVERLAY SCREENS */
   .screen-overlay {
     position: absolute;
     inset: 0;
     z-index: 25;
-    background: radial-gradient(circle at center, rgba(14, 26, 48, 0.78) 0%, rgba(5, 9, 18, 0.94) 100%);
+    background: radial-gradient(circle at center, rgba(14, 26, 48, 0.75) 0%, rgba(5, 9, 18, 0.94) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 16px;
+    padding: 12px;
     backdrop-filter: blur(8px);
   }
   .card-panel {
-    width: min(540px, 95vw);
-    max-height: 92vh;
+    width: min(680px, 96vw);
+    max-height: 94vh;
     overflow-y: auto;
-    background: rgba(16, 24, 44, 0.92);
-    border: 1px solid rgba(0, 242, 254, 0.35);
-    border-radius: 22px;
-    padding: 22px 24px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(0, 242, 254, 0.15);
+    background: rgba(14, 22, 40, 0.94);
+    border: 1px solid rgba(0, 242, 254, 0.38);
+    border-radius: 20px;
+    padding: 18px 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.75), 0 0 30px rgba(0, 242, 254, 0.15);
     text-align: center;
   }
+  .brand-pill {
+    display: inline-block;
+    background: linear-gradient(90deg, #ff0844, #ffb199);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
   .game-title {
-    font-size: clamp(24px, 5vw, 34px);
+    font-size: clamp(22px, 4.5vw, 32px);
     font-weight: 900;
     font-style: italic;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
     background: linear-gradient(90deg, #00f2fe, #4facfe, #ffd700);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
   }
   .game-sub {
-    font-size: 13px;
+    font-size: 12px;
     color: #94a3b8;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     font-weight: 600;
   }
   .form-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 12px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
     text-align: left;
   }
   .form-group label {
     display: block;
-    font-size: 11px;
+    font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.6px;
     color: #38bdf8;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     font-weight: 700;
   }
   .form-group input, .form-group select {
     width: 100%;
-    padding: 10px 12px;
-    border-radius: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
     border: 1px solid rgba(255,255,255,0.2);
-    background: rgba(8, 13, 26, 0.9);
+    background: rgba(8, 13, 26, 0.92);
     color: #fff;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     outline: none;
   }
+
+  /* 10 LOCATION CARDS GRID */
   .biome-cards {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin: 12px 0 16px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 7px;
+    margin: 8px 0 14px;
   }
   .biome-card {
-    background: rgba(255,255,255,0.06);
-    border: 2px solid transparent;
-    border-radius: 12px;
-    padding: 10px 6px;
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 8px 4px;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.14s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .biome-card:hover {
+    background: rgba(255,255,255,0.1);
   }
   .biome-card.active {
     border-color: #00f2fe;
-    background: rgba(0, 242, 254, 0.15);
-    box-shadow: 0 0 14px rgba(0, 242, 254, 0.3);
+    background: rgba(0, 242, 254, 0.18);
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.35);
+    transform: translateY(-1px);
   }
   .biome-card .emoji {
-    font-size: 24px;
-    display: block;
-    margin-bottom: 4px;
+    font-size: 20px;
+    line-height: 1;
   }
   .biome-card .b-name {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
+    color: #f8fafc;
+    line-height: 1.15;
   }
+  .biome-card .b-tag {
+    font-size: 9px;
+    color: #94a3b8;
+    font-weight: 600;
+  }
+
   .primary-btn {
     width: 100%;
-    padding: 14px;
+    padding: 13px;
     border: none;
-    border-radius: 14px;
+    border-radius: 12px;
     background: linear-gradient(90deg, #00f2fe 0%, #0072ff 100%);
     color: #fff;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 900;
     letter-spacing: 0.8px;
     text-transform: uppercase;
@@ -369,17 +409,17 @@
     transform: translateY(-2px);
   }
   .controls-hint {
-    margin-top: 12px;
-    font-size: 12px;
+    margin-top: 10px;
+    font-size: 11px;
     color: #cbd5e1;
     background: rgba(255,255,255,0.05);
-    padding: 8px 12px;
-    border-radius: 10px;
+    padding: 7px 10px;
+    border-radius: 8px;
   }
 
-  /* Matchmaking Lobby Box */
+  /* Matchmaking Lobby */
   .lobby-list {
-    margin: 14px 0;
+    margin: 12px 0;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 7px;
@@ -387,21 +427,18 @@
   }
   .lobby-slot {
     background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
+    border: 1px solid rgba(34, 197, 94, 0.55);
+    background: rgba(34, 197, 94, 0.12);
     padding: 7px 10px;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
-  .lobby-slot.ready {
-    border-color: rgba(34, 197, 94, 0.6);
-    background: rgba(34, 197, 94, 0.12);
-  }
   .ping-tag {
-    font-size: 11px;
+    font-size: 10px;
     color: #4ade80;
     font-weight: 600;
   }
@@ -410,34 +447,49 @@
   .leaderboard-table {
     width: 100%;
     border-collapse: collapse;
-    margin: 12px 0 16px;
-    font-size: 13px;
+    margin: 10px 0 14px;
+    font-size: 12px;
   }
   .leaderboard-table th {
     text-align: left;
-    padding: 7px 8px;
+    padding: 6px 8px;
     color: #38bdf8;
     border-bottom: 1px solid rgba(255,255,255,0.15);
   }
   .leaderboard-table td {
-    padding: 7px 8px;
+    padding: 6px 8px;
     border-bottom: 1px solid rgba(255,255,255,0.07);
     text-align: left;
     font-weight: 600;
   }
   .leaderboard-table tr.me-row {
-    background: rgba(0, 242, 254, 0.2);
+    background: rgba(0, 242, 254, 0.22);
     color: #ffd700;
     font-weight: 800;
   }
+  .finish-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .secondary-btn {
+    padding: 13px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+  }
 
-  @media (max-width: 600px) {
-    .form-row { grid-template-columns: 1fr; gap: 8px; }
+  @media (max-width: 640px) {
+    .form-row { grid-template-columns: 1fr 1fr; }
+    .biome-cards { grid-template-columns: repeat(2, 1fr); }
     .lobby-list { grid-template-columns: 1fr; }
     .ctrl-btn { width: 58px; height: 58px; }
   }
 </style>
-<!-- Three.js CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
@@ -447,12 +499,14 @@
 <!-- IN-GAME HUD -->
 <div id="hud">
   <div class="top-left">
-    <button class="hud-btn" id="btn-camera" title="Switch Camera (C)">C</button>
+    <button class="hud-btn" id="btn-camera" title="Switch Camera (C)">🎥</button>
     <button class="hud-btn" id="btn-audio" title="Mute / Unmute">🔊</button>
+    <button class="hud-btn" id="btn-menu-back" title="Change Track">🏠</button>
     <button class="hud-btn" id="btn-fullscreen" title="Fullscreen">⛶</button>
   </div>
 
   <div class="top-center">
+    <div class="stage-badge" id="hud-stage-name">1. ALPINE FOREST</div>
     <div class="progress-track" id="progress-track">
       <div class="checkpoint-tick" style="left: 25%;"></div>
       <div class="checkpoint-tick" style="left: 50%;"></div>
@@ -488,11 +542,12 @@
   </div>
 </div>
 
-<!-- MAIN MENU & GARAGE OVERLAY -->
+<!-- MAIN MENU & 10 WORLD LOCATIONS SELECTOR -->
 <div class="screen-overlay" id="menu-screen">
   <div class="card-panel">
+    <span class="brand-pill">GAMERKIE PRESENTS</span>
     <div class="game-title">EXTREME CYCLE RUSH 3D</div>
-    <div class="game-sub">10-Rider Downhill World Tour • First-Person Handlebar & Chase View</div>
+    <div class="game-sub">10 World Tour Environments • 10 Live Riders • Handlebar POV & 3rd-Person Chase</div>
 
     <div class="form-row">
       <div class="form-group">
@@ -514,11 +569,8 @@
           <option value="🇦🇪">🇦🇪 UAE</option>
         </select>
       </div>
-    </div>
-
-    <div class="form-row">
       <div class="form-group">
-        <label>Bike Frame Color</label>
+        <label>Bike Color</label>
         <select id="input-bike-color">
           <option value="#00a8ff">Electric Blue</option>
           <option value="#ff2e63">Crimson Red</option>
@@ -528,37 +580,23 @@
         </select>
       </div>
       <div class="form-group">
-        <label>Starting Camera</label>
+        <label>Camera View</label>
         <select id="input-cam-mode">
-          <option value="pov">Handlebar POV (1st Person)</option>
-          <option value="chase">Chase Camera (3rd Person)</option>
+          <option value="chase">3rd-Person Chase</option>
+          <option value="pov">1st-Person Handlebar</option>
         </select>
       </div>
     </div>
 
     <div class="form-group" style="text-align:left;">
-      <label>Select Mountain Trail</label>
+      <label>Select From 10 World Tour Racing Locations</label>
     </div>
-    <div class="biome-cards" id="biome-selector">
-      <div class="biome-card active" data-biome="forest">
-        <span class="emoji">🌲</span>
-        <span class="b-name">Alpine Forest</span>
-      </div>
-      <div class="biome-card" data-biome="snow">
-        <span class="emoji">🏔️</span>
-        <span class="b-name">Snowy Peak</span>
-      </div>
-      <div class="biome-card" data-biome="desert">
-        <span class="emoji">🏜️</span>
-        <span class="b-name">Canyon Dunes</span>
-      </div>
-    </div>
+    <div class="biome-cards" id="biome-selector"></div>
 
-    <button class="primary-btn" id="btn-find-match">JOIN LIVE RACE (10 RIDERS)</button>
+    <button class="primary-btn" id="btn-find-match">START LIVE RACE (10 RIDERS)</button>
 
     <div class="controls-hint">
-      <b>Desktop:</b> A/D or Left/Right Arrows to Steer • W/Up to Pedal • Space for Sprint Boost • <b>C</b> to Switch Camera<br>
-      <b>Mobile:</b> Auto-Pedal Active • Touch ◀ ▶ to Steer • Tap SPRINT for Aero Boost
+      <b>Controls:</b> Left / Right (A/D or ◀/▶) to Steer • Up/W to Pedal Faster • Space/SPRINT for Nitro Boost • <b>C / 🎥</b> Switch Camera
     </div>
   </div>
 </div>
@@ -566,7 +604,7 @@
 <!-- LIVE LOBBY MATCHMAKING OVERLAY -->
 <div class="screen-overlay" id="lobby-screen" style="display:none;">
   <div class="card-panel">
-    <div class="game-title" style="font-size:24px;">CONNECTING TO TRAIL LOBBY</div>
+    <div class="game-title" style="font-size:24px;">CONNECTING TO RACE SERVER</div>
     <div class="game-sub" id="lobby-status-text">Matching with riders worldwide (1/10)...</div>
     <div class="lobby-list" id="lobby-slots"></div>
   </div>
@@ -576,7 +614,7 @@
 <div class="screen-overlay" id="finish-screen" style="display:none;">
   <div class="card-panel">
     <div class="game-title" id="finish-headline">RACE FINISHED!</div>
-    <div class="game-sub" id="finish-subline">Official Downhill Trail Standings</div>
+    <div class="game-sub" id="finish-subline">Official World Tour Standings</div>
     <table class="leaderboard-table">
       <thead>
         <tr>
@@ -589,18 +627,21 @@
       </thead>
       <tbody id="leaderboard-body"></tbody>
     </table>
-    <button class="primary-btn" id="btn-next-race">NEXT TRAIL RACE</button>
+    <div class="finish-actions">
+      <button class="secondary-btn" id="btn-change-map">CHANGE LOCATION</button>
+      <button class="primary-btn" id="btn-next-race">NEXT STAGE ➔</button>
+    </div>
   </div>
 </div>
 
 <script>
 (() => {
-  // ==========================================
-  // 1. GLOBAL RIDER POOL (Realistic Online Tags - ZERO AI/Bot Mentions)
-  // ==========================================
+  // ==========================================================
+  // 1. GLOBAL RIDER POOL (Realistic Online Players - Zero AI/Bot Labels)
+  // ==========================================================
   const GLOBAL_RIDER_POOL = [
     { name: "John_Pro", flag: "🇬🇧", jersey: "#ff2e63", bike: "#f9d423", rim: "#ffffff" },
-    { name: "Aarav_X", flag: "🇮🇳", jersey: "#f9d423", bike: "#111111", rim: "#f9d423" },
+    { name: "Aarav_X", flag: "🇮🇳", jersey: "#f9d423", bike: "#00a8ff", rim: "#f9d423" },
     { name: "Lucas99", flag: "🇧🇷", jersey: "#2ecc71", bike: "#ffffff", rim: "#2ecc71" },
     { name: "SpeedDemon", flag: "🇺🇸", jersey: "#9b59b6", bike: "#00f2fe", rim: "#ffffff" },
     { name: "Kenji_MTB", flag: "🇯🇵", jersey: "#ff6b35", bike: "#222222", rim: "#ff6b35" },
@@ -613,45 +654,177 @@
     { name: "Vikram_GT", flag: "🇮🇳", jersey: "#3742fa", bike: "#7bed9f", rim: "#ffffff" }
   ];
 
-  const BIOMES = {
-    forest: {
-      name: "Alpine Forest",
-      skyTop: "#2980b9",
-      skyBottom: "#a8e6cf",
-      fogColor: 0x8ecae6,
-      groundColor: 0x3b7a28,
-      roadColor: 0x8b5a2b,
-      roadEdge: 0x6e4720,
-      treeType: "pine",
-      weather: "none"
+  // ==========================================================
+  // 2. 10 DISTINCT PLAYABLE WORLD TOUR LOCATIONS / DESIGNS
+  // ==========================================================
+  const STAGE_DESIGNS = [
+    {
+      key: "alpine",
+      title: "1. Alpine Forest",
+      subtitle: "Pine Woods & Dirt Jumps",
+      emoji: "🌲",
+      skyColor: 0x74b9ff,
+      fogColor: 0x9ad0ec,
+      groundColor: 0x3a7d2c,
+      roadColor: 0x8d5b34,
+      propType: "pine",
+      curveAmp: 24,
+      hillAmp: 4.5,
+      rampColor: 0xc98a4b
     },
-    snow: {
-      name: "Snowy Peak",
-      skyTop: "#1e3c72",
-      skyBottom: "#d9e4f5",
-      fogColor: 0xcfe2f3,
-      groundColor: 0xf0f6fc,
-      roadColor: 0xdbe9f4,
-      roadEdge: 0xd97706,
-      treeType: "snowpine",
-      weather: "snow"
+    {
+      key: "glacier",
+      title: "2. Snowy Glacier",
+      subtitle: "Icy Slopes & Slalom Flags",
+      emoji: "🏔️",
+      skyColor: 0xa3cef1,
+      fogColor: 0xdbe9f4,
+      groundColor: 0xf1f5f9,
+      roadColor: 0xcbd5e1,
+      propType: "snowpine",
+      curveAmp: 28,
+      hillAmp: 5.2,
+      rampColor: 0x38bdf8
     },
-    desert: {
-      name: "Canyon Dunes",
-      skyTop: "#2c3e50",
-      skyBottom: "#fd746c",
-      fogColor: 0xe6a176,
-      groundColor: 0xd48b45,
-      roadColor: 0xb56527,
-      roadEdge: 0x8a4215,
-      treeType: "cactus",
-      weather: "dust"
+    {
+      key: "canyon",
+      title: "3. Red Rock Canyon",
+      subtitle: "Desert Dunes & Cacti",
+      emoji: "🏜️",
+      skyColor: 0xf3a683,
+      fogColor: 0xe79c73,
+      groundColor: 0xd97736,
+      roadColor: 0xa84a18,
+      propType: "cactus",
+      curveAmp: 22,
+      hillAmp: 4.0,
+      rampColor: 0xe67e22
+    },
+    {
+      key: "sakura",
+      title: "4. Cherry Blossom",
+      subtitle: "Kyoto Pink Petal Ridge",
+      emoji: "🌸",
+      skyColor: 0xf8c8dc,
+      fogColor: 0xfce4ec,
+      groundColor: 0x558b2f,
+      roadColor: 0x786fa6,
+      propType: "sakura",
+      curveAmp: 25,
+      hillAmp: 3.8,
+      rampColor: 0xff6b81
+    },
+    {
+      key: "volcano",
+      title: "5. Volcano Magma",
+      subtitle: "Obsidian Trail & Lava Glow",
+      emoji: "🌋",
+      skyColor: 0x2c0e0e,
+      fogColor: 0x4a1515,
+      groundColor: 0x1e1b18,
+      roadColor: 0x3d352e,
+      propType: "lava",
+      curveAmp: 30,
+      hillAmp: 5.5,
+      rampColor: 0xff4500
+    },
+    {
+      key: "cyber",
+      title: "6. Cyber Neon City",
+      subtitle: "Night Synthwave Highway",
+      emoji: "🌃",
+      skyColor: 0x09061e,
+      fogColor: 0x160f38,
+      groundColor: 0x100b29,
+      roadColor: 0x1f1942,
+      propType: "neon",
+      curveAmp: 26,
+      hillAmp: 3.5,
+      rampColor: 0x00f2fe
+    },
+    {
+      key: "tropical",
+      title: "7. Tropical Beach",
+      subtitle: "Palm Coast & Golden Sand",
+      emoji: "🏝️",
+      skyColor: 0x38bdf8,
+      fogColor: 0xa5f3fc,
+      groundColor: 0xfde047,
+      roadColor: 0xd9a05b,
+      propType: "palm",
+      curveAmp: 20,
+      hillAmp: 3.2,
+      rampColor: 0x10b981
+    },
+    {
+      key: "autumn",
+      title: "8. Autumn Maple",
+      subtitle: "Golden Foliage Valley",
+      emoji: "🍂",
+      skyColor: 0xfad390,
+      fogColor: 0xf8c291,
+      groundColor: 0xb7472a,
+      roadColor: 0x6e3b23,
+      propType: "autumn",
+      curveAmp: 27,
+      hillAmp: 4.8,
+      rampColor: 0xf39c12
+    },
+    {
+      key: "jungle",
+      title: "9. Amazon Rainforest",
+      subtitle: "Misty Emerald Temple Trail",
+      emoji: "🌿",
+      skyColor: 0x55efc4,
+      fogColor: 0x81ecec,
+      groundColor: 0x1b4332,
+      roadColor: 0x5c4033,
+      propType: "jungle",
+      curveAmp: 29,
+      hillAmp: 4.6,
+      rampColor: 0x8ac926
+    },
+    {
+      key: "lunar",
+      title: "10. Lunar Space Dome",
+      subtitle: "Low-Gravity Crater Circuit",
+      emoji: "🌕",
+      skyColor: 0x05070e,
+      fogColor: 0x0f172a,
+      groundColor: 0x475569,
+      roadColor: 0x64748b,
+      propType: "lunar",
+      curveAmp: 25,
+      hillAmp: 6.0,
+      rampColor: 0xa855f7
     }
-  };
+  ];
 
-  // ==========================================
-  // 2. PROCEDURAL WEB AUDIO ENGINE
-  // ==========================================
+  let selectedStageIndex = 0;
+
+  // Populate 10 Location Cards in Menu
+  const biomeSelectorEl = document.getElementById("biome-selector");
+  STAGE_DESIGNS.forEach((stg, idx) => {
+    const card = document.createElement("div");
+    card.className = "biome-card" + (idx === 0 ? " active" : "");
+    card.innerHTML = `
+      <span class="emoji">${stg.emoji}</span>
+      <span class="b-name">${stg.title}</span>
+      <span class="b-tag">${stg.subtitle}</span>
+    `;
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".biome-card").forEach(c => c.classList.remove("active"));
+      card.classList.add("active");
+      selectedStageIndex = idx;
+      buildStageTrack(selectedStageIndex);
+      setupRaceParticipants();
+    });
+    biomeSelectorEl.appendChild(card);
+  });
+
+  // ==========================================================
+  // 3. PROCEDURAL WEB AUDIO ENGINE
+  // ==========================================================
   class SoundEngine {
     constructor() {
       this.ctx = null;
@@ -667,13 +840,13 @@
         this.ctx.resume();
       }
     }
-    beep(freq = 520, duration = 0.15, type = "triangle") {
+    beep(freq = 520, duration = 0.14, type = "triangle") {
       if (this.muted || !this.ctx) return;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = type;
       osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-      gain.gain.setValueAtTime(0.16, this.ctx.currentTime);
+      gain.gain.setValueAtTime(0.14, this.ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
       osc.connect(gain);
       gain.connect(this.ctx.destination);
@@ -683,20 +856,20 @@
     chainTick(speedRatio) {
       if (this.muted || !this.ctx || speedRatio < 0.08) return;
       const now = performance.now();
-      const interval = Math.max(48, 190 - speedRatio * 140);
+      const interval = Math.max(48, 185 - speedRatio * 135);
       if (now - this.lastClickTime < interval) return;
       this.lastClickTime = now;
 
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = "sawtooth";
-      osc.frequency.setValueAtTime(900 + speedRatio * 500, this.ctx.currentTime);
-      gain.gain.setValueAtTime(0.028, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.025);
+      osc.frequency.setValueAtTime(880 + speedRatio * 480, this.ctx.currentTime);
+      gain.gain.setValueAtTime(0.024, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.022);
       osc.connect(gain);
       gain.connect(this.ctx.destination);
       osc.start();
-      osc.stop(this.ctx.currentTime + 0.026);
+      osc.stop(this.ctx.currentTime + 0.024);
     }
     boostWhoosh() {
       if (this.muted || !this.ctx) return;
@@ -704,80 +877,82 @@
       const gain = this.ctx.createGain();
       osc.type = "sine";
       osc.frequency.setValueAtTime(220, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(680, this.ctx.currentTime + 0.35);
-      gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.36);
+      osc.frequency.exponentialRampToValueAtTime(690, this.ctx.currentTime + 0.32);
+      gain.gain.setValueAtTime(0.16, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.34);
       osc.connect(gain);
       gain.connect(this.ctx.destination);
       osc.start();
-      osc.stop(this.ctx.currentTime + 0.36);
+      osc.stop(this.ctx.currentTime + 0.34);
     }
     bumpSound() {
       if (this.muted || !this.ctx) return;
-      this.beep(110, 0.14, "square");
+      this.beep(115, 0.12, "square");
     }
   }
   const sfx = new SoundEngine();
 
-  // ==========================================
-  // 3. THREE.JS SCENE & TRACK SETUP
-  // ==========================================
+  // ==========================================================
+  // 4. THREE.JS SCENE & UPRIGHT CAMERA ORIENTATION FIX
+  // ==========================================================
   const canvas = document.getElementById("game-canvas");
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.shadowMap.enabled = true;
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x8ecae6, 0.0038);
+  scene.fog = new THREE.FogExp2(0x9ad0ec, 0.0035);
 
-  const camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.15, 420);
+  // Strictly enforce Upright World Up-Vector so screen NEVER flips upside down
+  const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.2, 460);
+  camera.up.set(0, 1, 0);
 
-  const hemiLight = new THREE.HemisphereLight(0xffffff, 0x446633, 0.85);
+  const hemiLight = new THREE.HemisphereLight(0xffffff, 0x334433, 0.92);
   scene.add(hemiLight);
 
-  const dirLight = new THREE.DirectionalLight(0xfff6e5, 0.95);
-  dirLight.position.set(60, 120, 80);
-  dirLight.castShadow = true;
+  const dirLight = new THREE.DirectionalLight(0xfff8e7, 0.95);
+  dirLight.position.set(60, 140, 80);
   scene.add(dirLight);
 
-  // Track Parameters
   const TRACK_LENGTH = 1750;
-  const TRACK_WIDTH = 13.5;
-  let currentBiomeKey = "forest";
-  let cameraMode = "pov"; // 'pov' (First-Person Handlebar) or 'chase' (Third-Person)
-  let gameState = "menu"; // 'menu' | 'countdown' | 'racing' | 'finished'
+  const TRACK_WIDTH = 14.0;
+  let cameraMode = "chase";
+  let gameState = "menu";
 
   let worldGroup = new THREE.Group();
   scene.add(worldGroup);
-
   let ramps = [];
-  let obstacles = [];
-  let weatherParticles = null;
 
-  // Deterministic smooth spline math for winding mountain trail
+  function getStageConfig() {
+    return STAGE_DESIGNS[selectedStageIndex] || STAGE_DESIGNS[0];
+  }
+
   function getTrackCenterX(z) {
+    const stg = getStageConfig();
+    const amp = stg.curveAmp;
     return (
-      Math.sin(z * 0.011) * 26 +
-      Math.cos(z * 0.023) * 14 +
-      Math.sin(z * 0.0045) * 42
+      Math.sin(z * 0.0105) * amp +
+      Math.cos(z * 0.022) * (amp * 0.48) +
+      Math.sin(z * 0.0042) * (amp * 1.35)
     );
   }
+
   function getTrackElevationY(z) {
-    // Overall downhill slope + rolling mountain hills
+    const stg = getStageConfig();
+    const h = stg.hillAmp;
     return (
-      -z * 0.075 +
-      Math.sin(z * 0.017) * 5.2 +
-      Math.cos(z * 0.036) * 2.4
+      -z * 0.065 +
+      Math.sin(z * 0.016) * h +
+      Math.cos(z * 0.034) * (h * 0.45)
     );
   }
+
   function getTrackHeadingAngle(z) {
     const dx = getTrackCenterX(z + 1.0) - getTrackCenterX(z - 1.0);
-    const dz = 2.0;
-    return Math.atan2(dx, dz);
+    return Math.atan2(dx, 2.0);
   }
 
-  // Create spoken wheel texture
+  // Wheel Texture
   function createSpokeWheelTexture(rimColorHex) {
     const c = document.createElement("canvas");
     c.width = 128;
@@ -785,22 +960,19 @@
     const ctx = c.getContext("2d");
     ctx.clearRect(0, 0, 128, 128);
 
-    // Outer tire
     ctx.beginPath();
     ctx.arc(64, 64, 58, 0, Math.PI * 2);
     ctx.lineWidth = 12;
     ctx.strokeStyle = "#181818";
     ctx.stroke();
 
-    // Colored Rim
     ctx.beginPath();
     ctx.arc(64, 64, 49, 0, Math.PI * 2);
     ctx.lineWidth = 7;
     ctx.strokeStyle = rimColorHex || "#ffd700";
     ctx.stroke();
 
-    // Spokes
-    ctx.strokeStyle = "rgba(220,220,220,0.85)";
+    ctx.strokeStyle = "rgba(230,230,230,0.85)";
     ctx.lineWidth = 2;
     for (let i = 0; i < 10; i++) {
       const a = (i / 10) * Math.PI * 2;
@@ -810,17 +982,15 @@
       ctx.stroke();
     }
 
-    // Hub
     ctx.beginPath();
     ctx.arc(64, 64, 8, 0, Math.PI * 2);
     ctx.fillStyle = "#333";
     ctx.fill();
 
-    const tex = new THREE.CanvasTexture(c);
-    return tex;
+    return new THREE.CanvasTexture(c);
   }
 
-  // Build 3D Floating Player Name + Flag + Live Rank Billboard Sprite
+  // 3D Floating Player Name + Country Flag + Live Rank Billboard
   function createNameplateSprite() {
     const c = document.createElement("canvas");
     c.width = 320;
@@ -834,6 +1004,12 @@
     return sprite;
   }
 
+  function getOrdinal(n) {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
   function updateNameplateSprite(sprite, flag, name, rankNum, isPlayer) {
     const key = `${flag}_${name}_${rankNum}`;
     if (sprite.userData.lastKey === key) return;
@@ -842,9 +1018,8 @@
     const { ctx, canvas, tex } = sprite.userData;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Pill background
-    ctx.fillStyle = isPlayer ? "rgba(0, 35, 60, 0.85)" : "rgba(12, 18, 30, 0.72)";
-    ctx.strokeStyle = isPlayer ? "#00f2fe" : "rgba(255,255,255,0.4)";
+    ctx.fillStyle = isPlayer ? "rgba(0, 38, 66, 0.88)" : "rgba(12, 18, 30, 0.76)";
+    ctx.strokeStyle = isPlayer ? "#00f2fe" : "rgba(255,255,255,0.45)";
     ctx.lineWidth = 3;
     const rx = 24, ry = 10, rw = 272, rh = 72, rad = 18;
     ctx.beginPath();
@@ -861,13 +1036,11 @@
     ctx.fill();
     ctx.stroke();
 
-    // Name + Flag
     ctx.font = "bold 24px 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
     ctx.fillStyle = "#ffffff";
     ctx.fillText(`${name} ${flag}`, canvas.width / 2, 42);
 
-    // Ordinal Rank Sub-line (like "4th" in screenshot)
     const ord = getOrdinal(rankNum);
     ctx.font = "900 22px 'Segoe UI', sans-serif";
     ctx.fillStyle = rankNum === 1 ? "#ffd700" : isPlayer ? "#00f2fe" : "#7bed9f";
@@ -876,19 +1049,14 @@
     tex.needsUpdate = true;
   }
 
-  function getOrdinal(n) {
-    const s = ["th", "st", "nd", "rd"];
-    const v = n % 100;
-    return n + (s[(v - 20) % 10] || s[v] || s[0]);
-  }
-
-  // ==========================================
-  // 4. BUILD ARTICULATED 3D CYCLIST & FIRST-PERSON HANDLEBAR RIG
-  // ==========================================
+  // ==========================================================
+  // 5. BUILD 3D CYCLIST & UPRIGHT FIRST-PERSON HANDLEBAR RIG
+  // ==========================================================
   function createCyclistMesh(config, isPlayer = false) {
     const root = new THREE.Group();
+    // Use YXZ rotation order so yaw (heading) is applied first, then pitch, then lean roll
+    root.rotation.order = "YXZ";
 
-    // 3rd-Person Full Cyclist & Bike Group
     const thirdPersonGroup = new THREE.Group();
     root.add(thirdPersonGroup);
 
@@ -906,7 +1074,6 @@
     frontWheel.position.set(0, 0.48, 0.62);
     thirdPersonGroup.add(frontWheel);
 
-    // Tire Torus rings for thickness
     const tireGeo = new THREE.TorusGeometry(0.42, 0.075, 8, 20);
     const tireMat = new THREE.MeshLambertMaterial({ color: 0x1a1a1a });
     const rearTire = new THREE.Mesh(tireGeo, tireMat);
@@ -919,10 +1086,8 @@
     frontTire.position.copy(frontWheel.position);
     thirdPersonGroup.add(frontTire);
 
-    // Bike Frame Tubes
     const frameMat = new THREE.MeshPhongMaterial({ color: config.bike || "#00a8ff", shininess: 80 });
-    const tubeGeo = new THREE.CylinderGeometry(0.045, 0.045, 1.15, 8);
-    const mainTube = new THREE.Mesh(tubeGeo, frameMat);
+    const mainTube = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 1.15, 8), frameMat);
     mainTube.rotation.x = Math.PI / 2.4;
     mainTube.position.set(0, 0.78, 0);
     thirdPersonGroup.add(mainTube);
@@ -932,13 +1097,11 @@
     forkTube.rotation.x = -0.22;
     thirdPersonGroup.add(forkTube);
 
-    // 3rd Person Handlebar
     const bar3D = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.82, 8), new THREE.MeshLambertMaterial({ color: 0x222222 }));
     bar3D.rotation.z = Math.PI / 2;
     bar3D.position.set(0, 1.18, 0.46);
     thirdPersonGroup.add(bar3D);
 
-    // Cyclist Torso (Leaning forward)
     const jerseyMat = new THREE.MeshLambertMaterial({ color: config.jersey || "#ff2e63" });
     const shortsMat = new THREE.MeshLambertMaterial({ color: 0x151922 });
     const skinMat = new THREE.MeshLambertMaterial({ color: 0xe0ac69 });
@@ -952,7 +1115,6 @@
     torso.rotation.x = 0.62;
     thirdPersonGroup.add(torso);
 
-    // Helmet & Head
     const head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), skinMat);
     head.position.set(0, 1.76, 0.22);
     thirdPersonGroup.add(head);
@@ -965,7 +1127,6 @@
     helmet.rotation.x = -0.25;
     thirdPersonGroup.add(helmet);
 
-    // Articulated Pedaling Legs
     const leftLegPivot = new THREE.Group();
     leftLegPivot.position.set(-0.16, 1.02, -0.18);
     const leftLegMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.065, 0.62, 8), shortsMat);
@@ -980,7 +1141,6 @@
     rightLegPivot.add(rightLegMesh);
     thirdPersonGroup.add(rightLegPivot);
 
-    // Arms reaching to handlebar
     const armGeo = new THREE.CylinderGeometry(0.055, 0.045, 0.56, 8);
     const leftArm = new THREE.Mesh(armGeo, skinMat);
     leftArm.position.set(-0.28, 1.38, 0.24);
@@ -992,14 +1152,11 @@
     rightArm.rotation.x = 1.05;
     thirdPersonGroup.add(rightArm);
 
-    // 3D Floating Billboard Nameplate (Only on Rivals or Visible in 3rd Person)
     const nameplate = createNameplateSprite();
     nameplate.position.set(0, 2.55, 0);
     root.add(nameplate);
 
-    // ==========================================
-    // FIRST-PERSON POV HANDLEBAR COCKPIT (Matches Reference Screenshots 2, 5, 6)
-    // ==========================================
+    // FIRST-PERSON POV HANDLEBAR COCKPIT
     let povGroup = null;
     let speedNeedle = null;
     if (isPlayer) {
@@ -1012,7 +1169,6 @@
       const gripMat = new THREE.MeshLambertMaterial({ color: 0x181818 });
       const gloveMat = new THREE.MeshLambertMaterial({ color: 0x111317 });
 
-      // Curved MTB Handlebar Assembly
       const centerBar = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.52, 12), barColorMat);
       centerBar.rotation.z = Math.PI / 2;
       centerBar.position.set(0, -0.18, 0.55);
@@ -1028,7 +1184,6 @@
       rightRise.position.set(0.38, -0.13, 0.55);
       povGroup.add(rightRise);
 
-      // Left & Right Handle Grips + Brake Levers
       const leftGrip = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.28, 12), gripMat);
       leftGrip.rotation.z = Math.PI / 2;
       leftGrip.position.set(-0.62, -0.08, 0.54);
@@ -1039,7 +1194,6 @@
       rightGrip.position.set(0.62, -0.08, 0.54);
       povGroup.add(rightGrip);
 
-      // Gloved Hands & Forearms (Just like screenshot 2, 5, 6)
       const leftGlove = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.11, 0.16), gloveMat);
       leftGlove.position.set(-0.60, -0.06, 0.51);
       povGroup.add(leftGlove);
@@ -1060,7 +1214,6 @@
       rightForearm.rotation.z = 0.28;
       povGroup.add(rightForearm);
 
-      // Stem-mounted Analog Speedometer Dial (Center of handlebars)
       const stemBox = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 0.12), darkMetalMat);
       stemBox.position.set(0, -0.13, 0.54);
       stemBox.rotation.x = -0.45;
@@ -1068,11 +1221,10 @@
 
       const dialFace = new THREE.Mesh(
         new THREE.CircleGeometry(0.06, 16),
-        new THREE.MeshBasicMaterial({ color: 0xf8fafc })
+        new THREE.MeshBasicMaterial({ color: 0xf8fafc, side: THREE.DoubleSide })
       );
       dialFace.position.set(0, -0.10, 0.478);
-      dialFace.rotation.y = Math.PI;
-      dialFace.rotation.x = 0.45;
+      dialFace.rotation.x = -0.45;
       povGroup.add(dialFace);
 
       speedNeedle = new THREE.Mesh(
@@ -1096,21 +1248,20 @@
     };
   }
 
-  // ==========================================
-  // 5. BUILD PROCEDURAL 3D BIOME TRACK & OBSTACLES
-  // ==========================================
-  function buildBiomeTrack(biomeKey) {
+  // ==========================================================
+  // 6. BUILD 10 CUSTOM BIOME TRACKS & ROADSIDE PROPS
+  // ==========================================================
+  function buildStageTrack(stageIdx) {
     scene.remove(worldGroup);
     worldGroup = new THREE.Group();
     scene.add(worldGroup);
     ramps = [];
-    obstacles = [];
 
-    const b = BIOMES[biomeKey];
-    scene.fog.color.setHex(b.fogColor);
-    renderer.setClearColor(b.fogColor);
+    const stg = STAGE_DESIGNS[stageIdx] || STAGE_DESIGNS[0];
+    scene.fog.color.setHex(stg.fogColor);
+    renderer.setClearColor(stg.skyColor);
+    document.getElementById("hud-stage-name").textContent = `${stg.emoji} ${stg.title}`;
 
-    // Segmented Ribbon Geometry for Smooth Winding Mountain Trail
     const segCount = 350;
     const segLen = TRACK_LENGTH / segCount;
 
@@ -1121,10 +1272,10 @@
     const terrainVerts = [];
     const terrainColors = [];
 
-    const cRoad1 = new THREE.Color(b.roadColor);
-    const cRoad2 = new THREE.Color(b.roadColor).multiplyScalar(0.92);
-    const cGround1 = new THREE.Color(b.groundColor);
-    const cGround2 = new THREE.Color(b.groundColor).multiplyScalar(0.88);
+    const cRoad1 = new THREE.Color(stg.roadColor);
+    const cRoad2 = new THREE.Color(stg.roadColor).multiplyScalar(0.9);
+    const cGround1 = new THREE.Color(stg.groundColor);
+    const cGround2 = new THREE.Color(stg.groundColor).multiplyScalar(0.86);
 
     for (let i = 0; i < segCount; i++) {
       const z0 = i * segLen;
@@ -1135,20 +1286,18 @@
       const y1 = getTrackElevationY(z1);
 
       const hw = TRACK_WIDTH * 0.5;
-      // Road Quad (2 triangles)
       roadVerts.push(
-        x0 - hw, y0 + 0.04, z0,
-        x0 + hw, y0 + 0.04, z0,
-        x1 - hw, y1 + 0.04, z1,
-        x0 + hw, y0 + 0.04, z0,
-        x1 + hw, y1 + 0.04, z1,
-        x1 - hw, y1 + 0.04, z1
+        x0 - hw, y0 + 0.05, z0,
+        x0 + hw, y0 + 0.05, z0,
+        x1 - hw, y1 + 0.05, z1,
+        x0 + hw, y0 + 0.05, z0,
+        x1 + hw, y1 + 0.05, z1,
+        x1 - hw, y1 + 0.05, z1
       );
       const rc = i % 2 === 0 ? cRoad1 : cRoad2;
       for (let k = 0; k < 6; k++) roadColors.push(rc.r, rc.g, rc.b);
 
-      // Wide Outer Mountain Valley Quad
-      const gw = 110;
+      const gw = 120;
       terrainVerts.push(
         x0 - gw, y0 - 0.15, z0,
         x0 + gw, y0 - 0.15, z0,
@@ -1164,18 +1313,16 @@
     roadGeo.setAttribute("position", new THREE.Float32BufferAttribute(roadVerts, 3));
     roadGeo.setAttribute("color", new THREE.Float32BufferAttribute(roadColors, 3));
     roadGeo.computeVertexNormals();
-    const roadMesh = new THREE.Mesh(roadGeo, new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide }));
-    worldGroup.add(roadMesh);
+    worldGroup.add(new THREE.Mesh(roadGeo, new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide })));
 
     terrainGeo.setAttribute("position", new THREE.Float32BufferAttribute(terrainVerts, 3));
     terrainGeo.setAttribute("color", new THREE.Float32BufferAttribute(terrainColors, 3));
     terrainGeo.computeVertexNormals();
-    const terrainMesh = new THREE.Mesh(terrainGeo, new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide }));
-    worldGroup.add(terrainMesh);
+    worldGroup.add(new THREE.Mesh(terrainGeo, new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide })));
 
-    // Wooden Jump Ramps along the trail (Just like screenshot 5)
-    const rampMat = new THREE.MeshLambertMaterial({ color: 0xc98a4b });
-    for (let z = 110; z < TRACK_LENGTH - 140; z += 145) {
+    // Jump Ramps along the trail
+    const rampMat = new THREE.MeshLambertMaterial({ color: stg.rampColor });
+    for (let z = 110; z < TRACK_LENGTH - 140; z += 135) {
       const laneOffset = ((z * 17) % 7) - 3.5;
       const rx = getTrackCenterX(z) + laneOffset;
       const ry = getTrackElevationY(z);
@@ -1185,71 +1332,112 @@
       rampGroup.position.set(rx, ry, z);
       rampGroup.rotation.y = heading;
 
-      const wedge = new THREE.Mesh(new THREE.BoxGeometry(3.4, 1.1, 5.5), rampMat);
+      const wedge = new THREE.Mesh(new THREE.BoxGeometry(3.5, 1.1, 5.5), rampMat);
       wedge.rotation.x = -0.24;
       wedge.position.y = 0.35;
       rampGroup.add(wedge);
 
       worldGroup.add(rampGroup);
-      ramps.push({ zStart: z - 2.8, zEnd: z + 2.8, laneOffset, width: 3.4 });
+      ramps.push({ zStart: z - 2.8, zEnd: z + 2.8, laneOffset, width: 3.5 });
     }
 
-    // Trackside Props (Trees / Snow Flags / Cacti & Rocks)
+    // Location-Specific Scenery Props
     const trunkMat = new THREE.MeshLambertMaterial({ color: 0x5c3a21 });
-    const leafMat = new THREE.MeshLambertMaterial({
-      color: biomeKey === "snow" ? 0xdff9fb : biomeKey === "desert" ? 0x2ecc71 : 0x1e824c
-    });
     const flagMatOrange = new THREE.MeshBasicMaterial({ color: 0xff7f00, side: THREE.DoubleSide });
     const flagMatGreen = new THREE.MeshBasicMaterial({ color: 0x00e676, side: THREE.DoubleSide });
 
-    for (let z = 20; z < TRACK_LENGTH; z += 11) {
+    for (let z = 20; z < TRACK_LENGTH; z += 12) {
       const cx = getTrackCenterX(z);
       const cy = getTrackElevationY(z);
 
-      // Left & Right Forest / Props
       [-1, 1].forEach((side, idx) => {
-        const dist = TRACK_WIDTH * 0.5 + 2.2 + ((z * (idx + 3)) % 18);
+        const dist = TRACK_WIDTH * 0.5 + 2.5 + ((z * (idx + 3)) % 18);
         const px = cx + side * dist;
         const py = cy;
 
-        if (biomeKey === "desert") {
-          // Cactus or Red Rock
-          const cactus = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.4, 4.2, 7), leafMat);
-          cactus.position.set(px, py + 2.1, z);
+        if (stg.propType === "cactus") {
+          const cactus = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.35, 0.42, 4.4, 7),
+            new THREE.MeshLambertMaterial({ color: 0x2ecc71 })
+          );
+          cactus.position.set(px, py + 2.2, z);
           worldGroup.add(cactus);
+        } else if (stg.propType === "neon") {
+          const neonColor = (z + idx) % 2 === 0 ? 0x00f2fe : 0xff0844;
+          const pillar = new THREE.Mesh(
+            new THREE.BoxGeometry(0.9, 8.5, 0.9),
+            new THREE.MeshBasicMaterial({ color: neonColor })
+          );
+          pillar.position.set(px, py + 4.2, z);
+          worldGroup.add(pillar);
+        } else if (stg.propType === "lava") {
+          const spire = new THREE.Mesh(
+            new THREE.ConeGeometry(1.8, 5.5, 5),
+            new THREE.MeshLambertMaterial({ color: (z % 24 === 0) ? 0xff4500 : 0x2d3436 })
+          );
+          spire.position.set(px, py + 2.7, z);
+          worldGroup.add(spire);
+        } else if (stg.propType === "lunar") {
+          const dome = new THREE.Mesh(
+            new THREE.OctahedronGeometry(1.7, 0),
+            new THREE.MeshPhongMaterial({ color: 0x38bdf8, shininess: 100 })
+          );
+          dome.position.set(px, py + 1.4, z);
+          worldGroup.add(dome);
         } else {
-          // Pine Tree
+          // Trees (Alpine, Snow, Sakura, Autumn, Tropical Palm, Jungle)
+          const leafColor =
+            stg.propType === "snowpine" ? 0xe2e8f0 :
+            stg.propType === "sakura" ? 0xff8da1 :
+            stg.propType === "autumn" ? 0xe67e22 :
+            stg.propType === "palm" ? 0x2ecc71 :
+            stg.propType === "jungle" ? 0x10b981 : 0x1e824c;
+
           const tree = new THREE.Group();
           tree.position.set(px, py, z);
-          const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.42, 2.6, 6), trunkMat);
-          trunk.position.y = 1.3;
+          const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.42, 2.8, 6), trunkMat);
+          trunk.position.y = 1.4;
           tree.add(trunk);
 
-          const cone1 = new THREE.Mesh(new THREE.ConeGeometry(2.1, 4.5, 7), leafMat);
-          cone1.position.y = 4.2;
-          tree.add(cone1);
-
-          const cone2 = new THREE.Mesh(new THREE.ConeGeometry(1.5, 3.6, 7), leafMat);
-          cone2.position.y = 6.4;
-          tree.add(cone2);
+          if (stg.propType === "sakura" || stg.propType === "autumn" || stg.propType === "jungle") {
+            const crown = new THREE.Mesh(
+              new THREE.DodecahedronGeometry(2.3, 0),
+              new THREE.MeshLambertMaterial({ color: leafColor })
+            );
+            crown.position.y = 4.2;
+            tree.add(crown);
+          } else {
+            const cone1 = new THREE.Mesh(
+              new THREE.ConeGeometry(2.1, 4.5, 7),
+              new THREE.MeshLambertMaterial({ color: leafColor })
+            );
+            cone1.position.y = 4.2;
+            tree.add(cone1);
+            const cone2 = new THREE.Mesh(
+              new THREE.ConeGeometry(1.5, 3.5, 7),
+              new THREE.MeshLambertMaterial({ color: leafColor })
+            );
+            cone2.position.y = 6.3;
+            tree.add(cone2);
+          }
           worldGroup.add(tree);
         }
 
-        // Slalom Flags & Wooden Fences on Snowy / Forest bends
-        if (z % 33 === 0) {
+        // Slalom Checkpoint Flags along track edge
+        if (z % 36 === 0) {
           const fx = cx + side * (TRACK_WIDTH * 0.5 + 0.5);
           const flagBanner = new THREE.Mesh(
-            new THREE.PlaneGeometry(0.9, 2.5),
+            new THREE.PlaneGeometry(0.9, 2.4),
             side < 0 ? flagMatOrange : flagMatGreen
           );
-          flagBanner.position.set(fx, cy + 1.3, z);
+          flagBanner.position.set(fx, cy + 1.25, z);
           flagBanner.rotation.y = Math.PI / 2;
           worldGroup.add(flagBanner);
         }
       });
     }
 
-    // Finish Arch Banner at Z = TRACK_LENGTH
+    // Finish Line Arch
     const fx = getTrackCenterX(TRACK_LENGTH);
     const fy = getTrackElevationY(TRACK_LENGTH);
     const archGroup = new THREE.Group();
@@ -1275,17 +1463,18 @@
     worldGroup.add(archGroup);
   }
 
-  // ==========================================
-  // 6. RACER STATE MANAGEMENT (1 PLAYER + 9 REALISTIC RIVALS)
-  // ==========================================
+  // ==========================================================
+  // 7. RACER STATE MANAGEMENT (1 PLAYER + 9 COMPETITIVE RIDERS)
+  // ==========================================================
   let racers = [];
   let playerRacer = null;
   let progressDots = [];
-
   const keys = { left: false, right: false, up: false, down: false, boost: false };
 
   function setupRaceParticipants() {
-    // Clear old progress dots
+    racers.forEach(r => {
+      if (r.mesh && r.mesh.root) worldGroup.remove(r.mesh.root);
+    });
     const trackBar = document.getElementById("progress-track");
     progressDots.forEach(d => d.remove());
     progressDots = [];
@@ -1295,12 +1484,9 @@
     const playerBikeColor = document.getElementById("input-bike-color").value;
     cameraMode = document.getElementById("input-cam-mode").value;
 
-    // Shuffle Global Rider Pool & pick 9 unique rivals
     const shuffledRivals = [...GLOBAL_RIDER_POOL].sort(() => Math.random() - 0.5).slice(0, 9);
-
     racers = [];
 
-    // Create Player + 9 Rivals (10 total)
     const allConfigs = [
       {
         name: playerName,
@@ -1317,13 +1503,11 @@
       const meshObj = createCyclistMesh(cfg, cfg.isPlayer);
       worldGroup.add(meshObj.root);
 
-      // Starting grid (2 rows of 5 riders)
       const row = Math.floor(idx / 5);
       const col = idx % 5;
-      const startLane = (col - 2) * 2.1;
+      const startLane = (col - 2) * 2.15;
       const startZ = 8 + row * 4.5;
 
-      // Progress bar dot
       const dot = document.createElement("div");
       dot.className = "progress-dot" + (cfg.isPlayer ? " player" : "");
       dot.style.left = "0%";
@@ -1340,9 +1524,8 @@
         z: startZ,
         laneOffset: startLane,
         targetLane: startLane,
-        vx: 0,
         speed: 0,
-        maxSpeed: cfg.isPlayer ? 49 : 46.5 + (Math.random() * 4.2 - 1.8),
+        maxSpeed: cfg.isPlayer ? 49.5 : 46.5 + (Math.random() * 4.2 - 1.8),
         topSpeedRecorded: 0,
         yOffset: 0,
         vy: 0,
@@ -1351,7 +1534,7 @@
         rank: idx + 1,
         finished: false,
         finishTime: 0,
-        laneTimer: 0.5 + Math.random() * 1.8
+        laneTimer: 0.6 + Math.random() * 1.8
       };
 
       racers.push(racer);
@@ -1375,9 +1558,9 @@
     }
   }
 
-  // ==========================================
-  // 7. PHYSICS, HUMAN-LIKE RIVAL STEERING & CAMERA LOOP
-  // ==========================================
+  // ==========================================================
+  // 8. PHYSICS, STEERING & UPRIGHT CAMERA LOOP (SCREEN ORIENTATION FIXED)
+  // ==========================================================
   let raceStartTime = 0;
   let toastTimeout = null;
 
@@ -1391,14 +1574,14 @@
 
   function updateAllRacerTransforms(dt) {
     const maxLane = TRACK_WIDTH * 0.44;
+    const gravity = getStageConfig().key === "lunar" ? 13.5 : 21.0;
 
     racers.forEach(r => {
       if (gameState === "racing" && !r.finished) {
         if (r.isPlayer) {
-          // Player acceleration (Auto-pedal gentle cruise + active pedal/sprint boost)
-          const baseCruise = 41.5;
-          const targetTop = keys.boost ? 58.5 : keys.up ? 50.5 : baseCruise;
-          const accel = keys.boost ? 24 : 15;
+          const baseCruise = 42.0;
+          const targetTop = keys.boost ? 59.5 : keys.up ? 51.0 : baseCruise;
+          const accel = keys.boost ? 25 : 16;
 
           if (keys.down) {
             r.speed = Math.max(12, r.speed - 32 * dt);
@@ -1408,22 +1591,24 @@
             r.speed = Math.max(targetTop, r.speed - 10 * dt);
           }
 
-          // Steering
+          // Intuitive screen-space steering:
+          // Since camera looks along +Z, World +X is to the LEFT of the screen and -X is to the RIGHT.
+          // Therefore pressing LEFT moves +laneOffset and pressing RIGHT moves -laneOffset!
           let steerInput = 0;
-          if (keys.left) steerInput -= 1;
-          if (keys.right) steerInput += 1;
+          if (keys.left) steerInput += 1;
+          if (keys.right) steerInput -= 1;
 
-          r.laneOffset += steerInput * 10.5 * dt;
+          r.laneOffset += steerInput * 11.2 * dt;
           r.laneOffset = Math.max(-maxLane, Math.min(maxLane, r.laneOffset));
-          r.leanAngle = THREE.MathUtils.lerp(r.leanAngle, -steerInput * 0.28, 10 * dt);
+          r.leanAngle = THREE.MathUtils.lerp(r.leanAngle, -steerInput * 0.25, 10 * dt);
 
-          // Slipstream Drafting behind any rival ahead
+          // Slipstream Drafting boost behind rivals
           for (const other of racers) {
             if (other !== r) {
               const dz = other.z - r.z;
               const dx = Math.abs(other.laneOffset - r.laneOffset);
               if (dz > 2.0 && dz < 11.0 && dx < 1.35) {
-                r.speed = Math.min(60, r.speed + 9.5 * dt);
+                r.speed = Math.min(61, r.speed + 9.5 * dt);
                 if (Math.random() < 0.03) showToast("⚡ SLIPSTREAM DRAFT +SPEED!");
                 break;
               }
@@ -1432,7 +1617,7 @@
 
           sfx.chainTick(r.speed / 55);
         } else {
-          // Organic Human-Like Rival Behavior (Lane switching, ramp seeking, competitive pacing)
+          // Organic rival lane changes & pack racing
           r.laneTimer -= dt;
           if (r.laneTimer <= 0) {
             r.laneTimer = 0.9 + Math.random() * 2.2;
@@ -1443,7 +1628,6 @@
           r.laneOffset += steerStep;
           r.leanAngle = THREE.MathUtils.lerp(r.leanAngle, -Math.sign(laneDiff) * 0.16, 6 * dt);
 
-          // Competitive rubber-banding so all 10 riders stay in an exciting pack
           const distToPlayer = playerRacer.z - r.z;
           let dynamicMax = r.maxSpeed;
           if (distToPlayer > 28) dynamicMax += 6.5;
@@ -1452,43 +1636,38 @@
           r.speed = THREE.MathUtils.lerp(r.speed, dynamicMax, 2.5 * dt);
         }
 
-        // Advance along track
         r.z += r.speed * dt;
         if (r.speed > r.topSpeedRecorded) r.topSpeedRecorded = r.speed;
 
-        // Check Wooden Jump Ramps
+        // Jump Ramp Launch
         if (r.yOffset <= 0.05) {
           for (const ramp of ramps) {
             if (r.z >= ramp.zStart && r.z <= ramp.zEnd && Math.abs(r.laneOffset - ramp.laneOffset) < ramp.width * 0.65) {
-              r.vy = 9.2;
-              r.speed = Math.min(62, r.speed + 4.5);
+              r.vy = 9.5;
+              r.speed = Math.min(63, r.speed + 4.5);
               if (r.isPlayer) {
                 sfx.boostWhoosh();
-                showToast("🚀 BIG AIR JUMP +BOOST!");
+                showToast("🚀 RAMP AIR JUMP +BOOST!");
               }
               break;
             }
           }
         }
 
-        // Air gravity physics
         if (r.yOffset > 0 || r.vy > 0) {
           r.yOffset += r.vy * dt;
-          r.vy -= 21.0 * dt;
+          r.vy -= gravity * dt;
           if (r.yOffset <= 0) {
             r.yOffset = 0;
             r.vy = 0;
           }
         }
 
-        // Finish Line Check
         if (r.z >= TRACK_LENGTH) {
           r.z = TRACK_LENGTH;
           r.finished = true;
           r.finishTime = (performance.now() - raceStartTime) / 1000;
-          if (r.isPlayer) {
-            completeRace();
-          }
+          if (r.isPlayer) completeRace();
         }
       }
 
@@ -1498,14 +1677,14 @@
         const dz = Math.abs(r.z - other.z);
         const dx = r.laneOffset - other.laneOffset;
         if (dz < 1.35 && Math.abs(dx) < 0.95 && Math.abs(r.yOffset - other.yOffset) < 1.0) {
-          const push = (dx >= 0 ? 1 : -1) * 0.48;
+          const push = (dx >= 0 ? 1 : -1) * 0.45;
           r.laneOffset = Math.max(-maxLane, Math.min(maxLane, r.laneOffset + push));
           other.laneOffset = Math.max(-maxLane, Math.min(maxLane, other.laneOffset - push));
           if (r.isPlayer || other.isPlayer) sfx.bumpSound();
         }
       }
 
-      // Position & Orientation in 3D World
+      // Compute 3D World Position & YXZ Orientation
       const cx = getTrackCenterX(r.z);
       const cy = getTrackElevationY(r.z);
       const heading = getTrackHeadingAngle(r.z);
@@ -1515,19 +1694,19 @@
       const worldZ = r.z - Math.sin(heading) * r.laneOffset;
 
       r.mesh.root.position.set(worldX, cy + r.yOffset, worldZ);
-      r.mesh.root.rotation.set(-pitchSlope * 0.65, heading, r.leanAngle);
+      r.mesh.root.rotation.set(-pitchSlope * 0.55, heading, r.leanAngle);
 
-      // Animate Pedaling Legs & Wheels
+      // Pedaling & Wheel Spin
       r.pedalPhase += r.speed * dt * 0.45;
       r.mesh.leftLegPivot.rotation.x = Math.sin(r.pedalPhase) * 0.55;
       r.mesh.rightLegPivot.rotation.x = Math.sin(r.pedalPhase + Math.PI) * 0.55;
       r.mesh.frontWheel.rotation.z -= r.speed * dt * 0.5;
       r.mesh.rearWheel.rotation.z -= r.speed * dt * 0.5;
 
-      // First-Person Handlebar Dynamic Tilt & Speedometer Needle
+      // First-Person Handlebar Cockpit Tilt & Needle
       if (r.isPlayer && r.mesh.povGroup) {
-        r.mesh.povGroup.rotation.z = r.leanAngle * 0.85;
-        r.mesh.povGroup.position.y = 1.34 + Math.sin(r.pedalPhase * 2) * 0.018;
+        r.mesh.povGroup.rotation.z = r.leanAngle * 0.75;
+        r.mesh.povGroup.position.y = 1.34 + Math.sin(r.pedalPhase * 2) * 0.016;
         if (r.mesh.speedNeedle) {
           const ratio = Math.min(1, r.speed / 60);
           r.mesh.speedNeedle.rotation.z = (ratio - 0.5) * 2.2;
@@ -1535,7 +1714,7 @@
       }
     });
 
-    // Sort Live Ranks by Z distance
+    // Live Rankings & Progress Bar
     const sorted = [...racers].sort((a, b) => b.z - a.z);
     sorted.forEach((r, index) => {
       r.rank = index + 1;
@@ -1544,37 +1723,35 @@
       r.dotEl.style.left = pct.toFixed(1) + "%";
     });
 
-    // Update HUD Badges
+    // Update HUD & Strictly Upright Camera (NEVER Inverted/Upside-Down)
     if (playerRacer) {
       document.getElementById("hud-rank").textContent = getOrdinal(playerRacer.rank);
       document.getElementById("hud-speed").textContent = Math.round(playerRacer.speed * 1.35);
 
-      // Update Camera Position
       const pPos = playerRacer.mesh.root.position;
       const heading = getTrackHeadingAngle(playerRacer.z);
       const slope = (getTrackElevationY(playerRacer.z + 2) - getTrackElevationY(playerRacer.z)) / 2;
 
+      camera.up.set(0, 1, 0);
+
       if (cameraMode === "pov") {
-        // First-Person Rider Eye Position looking over the handlebars
         camera.position.set(
-          pPos.x - Math.sin(heading) * 0.05,
+          pPos.x - Math.sin(heading) * 0.04,
           pPos.y + 1.48,
-          pPos.z - Math.cos(heading) * 0.05
+          pPos.z - Math.cos(heading) * 0.04
         );
         const lookZ = playerRacer.z + 18;
         const lookX = getTrackCenterX(lookZ) + playerRacer.laneOffset * 0.85;
-        const lookY = getTrackElevationY(lookZ) + 0.7;
+        const lookY = getTrackElevationY(lookZ) + 0.75;
         camera.lookAt(lookX, lookY, lookZ);
-        camera.rotation.z = playerRacer.leanAngle * 0.35;
       } else {
-        // Third-Person Chase Camera (Like Screenshots 3 & 4)
-        const camDist = 5.4;
-        const camHeight = 2.85;
+        const camDist = 5.6;
+        const camHeight = 2.9;
         const targetCamX = pPos.x - Math.sin(heading) * camDist;
-        const targetCamY = pPos.y + camHeight - slope * 1.5;
+        const targetCamY = pPos.y + camHeight - slope * 1.4;
         const targetCamZ = pPos.z - Math.cos(heading) * camDist;
 
-        camera.position.lerp(new THREE.Vector3(targetCamX, targetCamY, targetCamZ), 0.18);
+        camera.position.lerp(new THREE.Vector3(targetCamX, targetCamY, targetCamZ), 0.22);
         camera.lookAt(
           pPos.x + Math.sin(heading) * 6,
           pPos.y + 1.2 + slope * 3,
@@ -1584,19 +1761,20 @@
     }
   }
 
-  // ==========================================
-  // 8. MATCHMAKING LOBBY, COUNTDOWN & FINISH LEADERBOARD
-  // ==========================================
+  // ==========================================================
+  // 9. LOBBY MATCHMAKING, COUNTDOWN & FINISH PODIUM
+  // ==========================================================
   function startLobbyMatchmaking() {
     sfx.init();
     document.getElementById("menu-screen").style.display = "none";
+    document.getElementById("finish-screen").style.display = "none";
     const lobbyScreen = document.getElementById("lobby-screen");
     const slotsContainer = document.getElementById("lobby-slots");
     const statusText = document.getElementById("lobby-status-text");
     lobbyScreen.style.display = "flex";
     slotsContainer.innerHTML = "";
 
-    buildBiomeTrack(currentBiomeKey);
+    buildStageTrack(selectedStageIndex);
     setupRaceParticipants();
 
     let connected = 0;
@@ -1604,22 +1782,22 @@
       if (connected < racers.length) {
         const r = racers[connected];
         const slot = document.createElement("div");
-        slot.className = "lobby-slot ready";
-        const ping = 22 + Math.floor(Math.random() * 48);
+        slot.className = "lobby-slot";
+        const ping = 19 + Math.floor(Math.random() * 44);
         slot.innerHTML = `<span>${r.flag} ${r.name}</span><span class="ping-tag">${ping}ms • READY</span>`;
         slotsContainer.appendChild(slot);
         connected++;
-        statusText.textContent = `Connecting Riders (${connected}/10)...`;
-        sfx.beep(420 + connected * 35, 0.07, "sine");
+        statusText.textContent = `Connecting Riders to ${getStageConfig().title} (${connected}/10)...`;
+        sfx.beep(420 + connected * 35, 0.06, "sine");
       } else {
         clearInterval(interval);
-        statusText.textContent = "Lobby Full (10/10)! Spawning on Mountain Gate...";
+        statusText.textContent = "All 10 Riders Ready! Launching Race...";
         setTimeout(() => {
           lobbyScreen.style.display = "none";
           startRaceCountdown();
-        }, 550);
+        }, 480);
       }
-    }, 140);
+    }, 110);
   }
 
   function startRaceCountdown() {
@@ -1644,8 +1822,8 @@
         setTimeout(() => {
           banner.style.opacity = "0";
           banner.style.transform = "translate(-50%, -50%) scale(0.9)";
-        }, 650);
-        if (idx < steps.length) setTimeout(tick, 800);
+        }, 620);
+        if (idx < steps.length) setTimeout(tick, 760);
       }
     };
     tick();
@@ -1656,7 +1834,6 @@
     sfx.beep(780, 0.18, "triangle");
     setTimeout(() => sfx.beep(1040, 0.35, "triangle"), 180);
 
-    // Fill simulated finish times for any remaining riders
     const baseNow = (performance.now() - raceStartTime) / 1000;
     const sorted = [...racers].sort((a, b) => b.z - a.z);
 
@@ -1665,9 +1842,9 @@
 
     sorted.forEach((r, idx) => {
       const pos = idx + 1;
-      const t = r.finished ? r.finishTime : baseNow + (TRACK_LENGTH - r.z) * 0.025 + idx * 0.4;
+      const t = r.finished ? r.finishTime : baseNow + (TRACK_LENGTH - r.z) * 0.024 + idx * 0.35;
       const topSpd = Math.round(Math.max(48, r.topSpeedRecorded) * 1.35);
-      const reward = Math.max(50, 1000 - idx * 100);
+      const reward = Math.max(100, 1000 - idx * 90);
 
       const tr = document.createElement("tr");
       if (r.isPlayer) tr.className = "me-row";
@@ -1682,33 +1859,42 @@
     });
 
     document.getElementById("finish-headline").textContent =
-      playerRacer.rank <= 3 ? `🏆 PODIUM FINISH (${getOrdinal(playerRacer.rank)})!` : `RACE COMPLETED (${getOrdinal(playerRacer.rank)})`;
+      playerRacer.rank <= 3 ? `🏆 PODIUM FINISH (${getOrdinal(playerRacer.rank)})!` : `STAGE COMPLETED (${getOrdinal(playerRacer.rank)})`;
+    document.getElementById("finish-subline").textContent = `${getStageConfig().title} — Official Standings`;
     document.getElementById("finish-screen").style.display = "flex";
   }
 
-  // ==========================================
-  // 9. UI & INPUT EVENT LISTENERS
-  // ==========================================
-  document.querySelectorAll(".biome-card").forEach(card => {
-    card.addEventListener("click", () => {
-      document.querySelectorAll(".biome-card").forEach(c => c.classList.remove("active"));
-      card.classList.add("active");
-      currentBiomeKey = card.dataset.biome;
-      buildBiomeTrack(currentBiomeKey);
-    });
-  });
-
+  // ==========================================================
+  // 10. UI & INPUT CONTROLS
+  // ==========================================================
   document.getElementById("btn-find-match").addEventListener("click", startLobbyMatchmaking);
 
-  document.getElementById("btn-next-race").addEventListener("click", () => {
+  document.getElementById("btn-change-map").addEventListener("click", () => {
     document.getElementById("finish-screen").style.display = "none";
     document.getElementById("menu-screen").style.display = "flex";
     document.getElementById("hud").style.display = "none";
     gameState = "menu";
   });
 
+  document.getElementById("btn-menu-back").addEventListener("click", () => {
+    document.getElementById("finish-screen").style.display = "none";
+    document.getElementById("menu-screen").style.display = "flex";
+    document.getElementById("hud").style.display = "none";
+    gameState = "menu";
+  });
+
+  document.getElementById("btn-next-race").addEventListener("click", () => {
+    // Advance to the next location out of the 10 stages automatically!
+    selectedStageIndex = (selectedStageIndex + 1) % STAGE_DESIGNS.length;
+    document.querySelectorAll(".biome-card").forEach((c, idx) => {
+      c.classList.toggle("active", idx === selectedStageIndex);
+    });
+    startLobbyMatchmaking();
+  });
+
   function toggleCamera() {
     cameraMode = cameraMode === "pov" ? "chase" : "pov";
+    document.getElementById("input-cam-mode").value = cameraMode;
     applyCameraModeVisibility();
     showToast(cameraMode === "pov" ? "🎥 HANDLEBAR POV CAMERA" : "🎥 3RD-PERSON CHASE CAMERA");
   }
@@ -1728,7 +1914,6 @@
     }
   });
 
-  // Keyboard Controls
   window.addEventListener("keydown", (e) => {
     const k = e.key.toLowerCase();
     if (k === "a" || e.key === "ArrowLeft") keys.left = true;
@@ -1753,7 +1938,6 @@
     if (e.code === "Space") keys.boost = false;
   });
 
-  // Touch & Mouse Hold Helper
   function bindHoldButton(btnId, keyProp) {
     const btn = document.getElementById(btnId);
     const start = (e) => {
@@ -1786,11 +1970,10 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
-  // Initial background showcase scene
-  buildBiomeTrack("forest");
+  // Initial showcase
+  buildStageTrack(0);
   setupRaceParticipants();
 
-  // Main 60FPS Render Loop
   let lastTime = performance.now();
   function animate(now) {
     requestAnimationFrame(animate);
@@ -1798,10 +1981,10 @@
     lastTime = now;
 
     if (gameState === "menu") {
-      // Gently orbit camera around starting line in menu
-      const t = now * 0.0004;
-      camera.position.set(Math.sin(t) * 8, 4.2, -4 + Math.cos(t) * 4);
-      camera.lookAt(0, 1.2, 18);
+      const t = now * 0.00035;
+      camera.up.set(0, 1, 0);
+      camera.position.set(Math.sin(t) * 7.5, 4.0, -3 + Math.cos(t) * 3.5);
+      camera.lookAt(0, 1.2, 16);
     } else {
       updateAllRacerTransforms(dt);
     }
